@@ -1,14 +1,11 @@
 package main
 
 import (
-	"errors"
 	"flag"
-	"fmt"
 	"io/fs"
 	"log/slog"
 	"os"
 
-	"github.com/caasmo/restinpieces"
 	"github.com/caasmo/restinpieces/config"
 	"github.com/caasmo/restinpieces/custom"
 	"github.com/caasmo/restinpieces/server"
@@ -40,10 +37,6 @@ func main() {
 	}
 	defer app.Close()
 
-	// Log embedded assets using the app's logger
-	app.Logger().Debug("logging embedded assets", "public_dir", cfg.PublicDir)
-	logEmbeddedAssets(restinpieces.EmbeddedAssets, cfg, app.Logger())
-
 	// Setup custom app
 	cApp := custom.NewApp(app)
 
@@ -63,13 +56,6 @@ func main() {
 		app.Logger().Info("Starting server in verbose mode")
 	}
 	srv.Run()
-}
-
-// Placeholder for logEmbeddedAssets function
-func logEmbeddedAssets(assets fs.FS, cfg *config.Config, logger *slog.Logger) {
-	logger.Info("logging embedded assets (placeholder)")
-	// Implementation would go here, e.g., walking the fs.FS
-	// and logging file names or other details.
 }
 
 // Placeholder for route function
