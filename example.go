@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"os"
 
+	"github.com/caasmo/restinpieces"
 	"github.com/caasmo/restinpieces/config"
 	"github.com/caasmo/restinpieces/custom"
 	"github.com/caasmo/restinpieces/server"
@@ -59,7 +60,7 @@ func main() {
 }
 
 // Placeholder for route function
-func route(cfg *config.Config, app *setup.App, cApp *custom.App) {
+func route(cfg *config.Config, app *restinpieces.App, cApp *custom.App) {
 	app.Logger().Info("setting up routes (placeholder)")
 	// Implementation would involve setting up HTTP routes
 	// using app.Router() or similar.
