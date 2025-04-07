@@ -8,6 +8,7 @@
 - example using custom db injecting pool?
 - example passing logger to app
 - example custom handler, app middleware
+- example showing route features: Handle, showing framwework 
 
 ## Run
 
