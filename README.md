@@ -1,7 +1,9 @@
 ## TODO
 
 - make commands
+- example showing auth  with curl examples
 - with fileserver embeded
+    - with auth showing html endpoints
 - with fileserver 
 - without cache, disabled things like Ip blocking
 - example using app middleware
