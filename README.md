@@ -9,5 +9,7 @@
 - example passing logger to app
 - example custom handler, app middleware
 
+
     go run cmd/example1/...
+
     go run cmd/example/...
