@@ -2,7 +2,7 @@ module github.com/caasmo/restinpieces-example
 
 go 1.24.2
 
-require github.com/caasmo/restinpieces v0.0.0-20250407171159-50c818b2f422
+require github.com/caasmo/restinpieces v0.0.0-20250407183854-2a97cf49ff13
 
 require (
 	crawshaw.io/sqlite v0.3.3-0.20220618202545-d1964889ea3c // indirect

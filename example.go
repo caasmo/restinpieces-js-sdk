@@ -1,13 +1,21 @@
 package main
+//go:generate go run gen/gogenerate-assets.go -baseDir static
 
 import (
 	"flag"
 	"log/slog"
 	"os"
+	"embed"
+	"io/fs"
+	"net/http"
 
-	"github.com/caasmo/restinpieces/config"
 	"github.com/caasmo/restinpieces"
+
 	//"github.com/caasmo/restinpieces/custom"
+
+    // TODO
+	r "github.com/caasmo/restinpieces/router"
+	"github.com/caasmo/restinpieces/core"
 )
 
 // entry points is custom 
@@ -78,15 +86,18 @@ var (
 	dbfile  = flag.String("db", "app.db", "Path to the database file")
 )
 
+//go:embed static/dist/*
+var EmbeddedAssets embed.FS // move to embed.go
+
 func main() {
 	flag.Parse()
 
 	// Load initial configuration
-	cfg, err := config.Load(*dbfile)
-	if err != nil {
-		slog.Error("failed to load initial config", "error", err)
-		os.Exit(1)
-	}
+	//cfg, err := config.Load(*dbfile)
+	//if err != nil {
+	//	slog.Error("failed to load initial config", "error", err)
+	//	os.Exit(1)
+	//}
 
 	app, srv, err := restinpieces.New(
 		*dbfile,
@@ -97,9 +108,27 @@ func main() {
 	)
 	if err != nil {
 		slog.Error("failed to initialize application", "error", err)
-		return err
+		os.Exit(1)
 	}
 	defer app.Close() // Ensure resources are cleaned up
+
+	// Serve static files from configured public directory
+
+	// --- file server ---
+    cfg:= app.Config()
+	subFS, err := fs.Sub(EmbeddedAssets, cfg.PublicDir)
+	if err != nil {
+		// TODO
+		panic("failed to create sub filesystem: " + err.Error())
+	}
+
+	ffs := http.FileServerFS(subFS)
+	app.Router().Register(
+		r.NewRoute("/").WithHandler(ffs).WithMiddleware(
+			core.StaticHeadersMiddleware,
+			core.GzipMiddleware(subFS),
+		),
+	)
 
 	// Log embedded assets using the app's logger and config
 	// Note: config is now accessed via app.Config()
