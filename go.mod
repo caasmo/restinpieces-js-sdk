@@ -2,10 +2,12 @@ module github.com/caasmo/restinpieces-example
 
 go 1.24.2
 
-require github.com/caasmo/restinpieces v0.0.0-20250408001602-c1e5cfc0842a
+require (
+	crawshaw.io/sqlite v0.3.3-0.20220618202545-d1964889ea3c
+	github.com/caasmo/restinpieces v0.0.0-20250408120247-c97921d20b1b
+)
 
 require (
-	crawshaw.io/sqlite v0.3.3-0.20220618202545-d1964889ea3c // indirect
 	github.com/BurntSushi/toml v1.5.0 // indirect
 	github.com/OneOfOne/xxhash v1.2.8 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect

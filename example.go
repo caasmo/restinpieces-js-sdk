@@ -142,7 +142,6 @@ func main() {
 		slog.Error("failed to initialize application", "error", err)
 		os.Exit(1)
 	}
-	defer app.Close() // Ensure resources are cleaned up
 
 	// Serve static files from configured public directory
 

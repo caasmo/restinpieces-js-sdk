@@ -6,12 +6,8 @@ github.com/BurntSushi/toml v1.5.0 h1:W5quZX/G/csjUnuI8SUYlsHs9M38FC7znL0lIO+DvMg
 github.com/BurntSushi/toml v1.5.0/go.mod h1:ukJfTF/6rtPPRCnwkur4qwRxa8vTRFBF0uk2lLoLwho=
 github.com/OneOfOne/xxhash v1.2.8 h1:31czK/TI9sNkxIKfaUfGlU47BAxQ0ztGgd9vPyqimf8=
 github.com/OneOfOne/xxhash v1.2.8/go.mod h1:eZbhyaAYD41SGSSsnmcpxVoRiQ/MPUTjUdIIOT9Um7Q=
-github.com/caasmo/restinpieces v0.0.0-20250407183854-2a97cf49ff13 h1:z3+TqDASdxaYQJk/x4fIEWh5KwaDsM6obp0hnGpYn2I=
-github.com/caasmo/restinpieces v0.0.0-20250407183854-2a97cf49ff13/go.mod h1:k5PrUo2jCMZ7m3H/ZGxKCrhy3wEGVkrMPgXlLRzoeJ8=
-github.com/caasmo/restinpieces v0.0.0-20250408001106-77a8381e7d45 h1:t/Y1IzdN2YhHpj8M134CXfSJ5u3cVPNlH6fwLD4qtFo=
-github.com/caasmo/restinpieces v0.0.0-20250408001106-77a8381e7d45/go.mod h1:k5PrUo2jCMZ7m3H/ZGxKCrhy3wEGVkrMPgXlLRzoeJ8=
-github.com/caasmo/restinpieces v0.0.0-20250408001602-c1e5cfc0842a h1:s/+ne2WPQayjUlYiJwg2ulrRLzZAQZ7kwCsgdN6Ri5k=
-github.com/caasmo/restinpieces v0.0.0-20250408001602-c1e5cfc0842a/go.mod h1:k5PrUo2jCMZ7m3H/ZGxKCrhy3wEGVkrMPgXlLRzoeJ8=
+github.com/caasmo/restinpieces v0.0.0-20250408120247-c97921d20b1b h1:v5A03TSi8kPq6xUm4X1/1m0OQYH1HBWheoYf7y2HItw=
+github.com/caasmo/restinpieces v0.0.0-20250408120247-c97921d20b1b/go.mod h1:k5PrUo2jCMZ7m3H/ZGxKCrhy3wEGVkrMPgXlLRzoeJ8=
 github.com/cespare/xxhash/v2 v2.3.0 h1:UL815xU9SqsFlibzuggzjXhog7bL6oX9BbNZnL2UFvs=
 github.com/cespare/xxhash/v2 v2.3.0/go.mod h1:VGX0DQ3Q6kWi7AoAeZDth3/j3BFtOZR5XLFGgcrjCOs=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
