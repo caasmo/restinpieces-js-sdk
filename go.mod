@@ -2,7 +2,7 @@ module github.com/caasmo/restinpieces-example
 
 go 1.24.2
 
-require github.com/caasmo/restinpieces v0.0.0-20250407183854-2a97cf49ff13
+require github.com/caasmo/restinpieces v0.0.0-20250408001602-c1e5cfc0842a
 
 require (
 	crawshaw.io/sqlite v0.3.3-0.20220618202545-d1964889ea3c // indirect
@@ -23,7 +23,7 @@ require (
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
 	golang.org/x/crypto v0.37.0 // indirect
 	golang.org/x/exp v0.0.0-20250305212735-054e65f0b394 // indirect
-	golang.org/x/net v0.38.0 // indirect
+	golang.org/x/net v0.39.0 // indirect
 	golang.org/x/oauth2 v0.29.0 // indirect
 	golang.org/x/sync v0.13.0 // indirect
 	golang.org/x/sys v0.32.0 // indirect

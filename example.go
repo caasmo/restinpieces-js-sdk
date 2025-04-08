@@ -9,7 +9,10 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
+	"fmt"
+	"runtime" // Required for pool size calculatio
 
+	crawshawPool "crawshaw.io/sqlite/sqlitex"
 	"github.com/caasmo/restinpieces"
 
 	//"github.com/caasmo/restinpieces/custom"
@@ -88,6 +91,21 @@ var (
 //go:embed static/dist/*
 var EmbeddedAssets embed.FS // move to embed.go
 
+func createCrawshawPool(dbPath string) (*crawshawPool.Pool, error) {
+
+    // TODO documetn option requiring wal for example for litestream
+	poolSize := runtime.NumCPU()
+    initString := fmt.Sprintf("file:%s", dbPath)
+
+	pool, err := crawshawPool.Open(initString, 0, poolSize)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create crawshaw pool at %s: %w", dbPath, err)
+	}
+
+	slog.Info("Crawshaw pool created successfully", "path", dbPath)
+	return pool, nil
+}
+
 func main() {
 	flag.Parse()
 
@@ -97,10 +115,25 @@ func main() {
 	//	slog.Error("failed to load initial config", "error", err)
 	//	os.Exit(1)
 	//}
+	dbPool, err := createCrawshawPool(*dbfile)
+	// Or: dbPool, err := createZombiezenPool(*dbfile)
+	if err != nil {
+		slog.Error("failed to create database pool", "error", err)
+			os.Exit(0)
+	}
+
+	// Defer closing the pool here, as the user (main) owns it now.
+	// This must happen *after* app.Close() finishes.
+	defer func() {
+		slog.Info("Closing database pool...")
+		if err := dbPool.Close(); err != nil {
+			slog.Error("Error closing database pool", "error", err)
+		}
+	}()
 
 	app, srv, err := restinpieces.New(
 		*dbfile,
-		restinpieces.WithDBCrawshaw(*dbfile), // Pass dbfile here as well for DB init
+		restinpieces.WithDbCrawshaw(dbPool), // Pass dbfile here as well for DB init
 		restinpieces.WithRouterServeMux(),    // Using Httprouter as an example default
 		restinpieces.WithCacheRistretto(),
 		restinpieces.WithTextLogger(nil), // Use default text logger options
