@@ -1,7 +1,7 @@
 import Restinpieces from "./sdk/restinpieces.js";
 
 const rp = new Restinpieces({
-  baseURL: "http://localhost:8080",
+  baseURL: "//localhost:8080",
 });
 
 function renderEndpoints(endpoints, listElement, containerElement) {

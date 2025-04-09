@@ -3,7 +3,7 @@ import Restinpieces from "./sdk/restinpieces.js";
 class ConfirmPasswordReset {
   constructor() {
     this.rp = new Restinpieces({
-      baseURL: "http://localhost:8080", 
+      baseURL: "//localhost:8080", 
     });
     this.form = document.getElementById("confirmResetForm");
     this.messageDiv = document.getElementById("message");

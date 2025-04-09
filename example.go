@@ -21,6 +21,7 @@ import (
 
 var (
 	dbfile = flag.String("db", "app.db", "Path to the database file")
+	configFile = flag.String("config", "", "Path to configuration file")
 )
 
 //go:embed static/dist/*
@@ -53,7 +54,7 @@ func main() {
 	}()
 
 	app, srv, err := restinpieces.New(
-        "",
+		*configFile,
 		restinpieces.WithDbCrawshaw(dbPool), 
 		restinpieces.WithRouterServeMux(),    
 		restinpieces.WithCacheRistretto(),

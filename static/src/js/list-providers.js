@@ -8,7 +8,7 @@ function getProviders() {
   errorDiv.textContent = "";
 
   const rp = new Restinpieces({
-    baseURL: "http://localhost:8080",
+    baseURL: "//localhost:8080",
   });
 
   rp.listOauth2Providers()

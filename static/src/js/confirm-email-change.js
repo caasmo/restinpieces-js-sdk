@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const confirmButton = document.getElementById("confirmButton");
 
   const rp = new Restinpieces({
-    baseURL: "http://localhost:8080"
+    baseURL: "//localhost:8080"
   });
 
   if (!token) {

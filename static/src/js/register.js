@@ -3,7 +3,7 @@ import Restinpieces from "./sdk/restinpieces.js";
 class RegisterForm {
   constructor() {
     this.rp = new Restinpieces({
-      baseURL: "http://localhost:8080",
+      baseURL: "//localhost:8080",
     });
     this.form = document.getElementById("registerForm");
     this.messageDiv = document.getElementById("message");

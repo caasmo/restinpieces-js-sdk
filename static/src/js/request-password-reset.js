@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const resetButton = document.getElementById("resetButton");
 
   const rp = new Restinpieces({
-    baseURL: "http://localhost:8080"
+    baseURL: "//localhost:8080"
   });
 
   // Show loading message
