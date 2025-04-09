@@ -1,0 +1,8 @@
+# Environment files
+.env
+
+# Ignore all SQLite database files
+*.db
+*-shm
+*-wal
+.aider*
