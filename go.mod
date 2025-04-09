@@ -4,7 +4,7 @@ go 1.24.2
 
 require (
 	crawshaw.io/sqlite v0.3.3-0.20220618202545-d1964889ea3c
-	github.com/caasmo/restinpieces v0.0.0-20250408120247-c97921d20b1b
+	github.com/caasmo/restinpieces v0.0.0-20250409132813-1bdafde0b237
 )
 
 require (
@@ -24,7 +24,7 @@ require (
 	github.com/phuslu/log v1.0.115 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
 	golang.org/x/crypto v0.37.0 // indirect
-	golang.org/x/exp v0.0.0-20250305212735-054e65f0b394 // indirect
+	golang.org/x/exp v0.0.0-20250408133849-7e4ce0ab07d0 // indirect
 	golang.org/x/net v0.39.0 // indirect
 	golang.org/x/oauth2 v0.29.0 // indirect
 	golang.org/x/sync v0.13.0 // indirect
