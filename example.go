@@ -37,8 +37,8 @@ func main() {
 	//	os.Exit(1)
 	//}
 
-	dbPool, err := restinpieces.NewCrawshawPool(*dbfile)
-	// Or: dbPool, err := restinpieces.NewZombiezenPool(*dbfile)
+	//dbPool, err := restinpieces.NewCrawshawPool(*dbfile)
+	dbPool, err := restinpieces.NewZombiezenPool(*dbfile)
 	if err != nil {
 		slog.Error("failed to create database pool", "error", err)
 	    os.Exit(1)
@@ -55,7 +55,8 @@ func main() {
 
 	app, srv, err := restinpieces.New(
 		*configFile,
-		restinpieces.WithDbCrawshaw(dbPool), 
+		//restinpieces.WithDbCrawshaw(dbPool), 
+		restinpieces.WithDbZombiezen(dbPool), 
 		restinpieces.WithRouterServeMux(),    
 		restinpieces.WithCacheRistretto(),
 		restinpieces.WithTextLogger(nil), 
@@ -74,12 +75,12 @@ func main() {
 	}
 
 	ffs := http.FileServerFS(subFS)
-	app.Router().Register(
-		r.NewRoute("/").WithHandler(ffs).WithMiddleware(
+	app.Router().Register(map[string]*r.Chain{
+        "/": r.NewChain(ffs).WithMiddleware(
 			core.StaticHeadersMiddleware,
 			core.GzipMiddleware(subFS),
 		),
-	)
+    })
 
 	// Log embedded assets using the app's logger and config
 	// Note: config is now accessed via app.Config()

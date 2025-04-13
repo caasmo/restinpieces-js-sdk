@@ -1,1 +1,0 @@
-import{c as e}from"./chunk-NTKSLLJF.js";var t=new e({baseURL:"http://localhost:8080"});t.store.auth.save(null);document.getElementById("login-btn").addEventListener("click",()=>{window.location.href="login.html"});document.getElementById("register-btn").addEventListener("click",()=>{window.location.href="/register.html"});

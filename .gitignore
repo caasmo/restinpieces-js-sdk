@@ -6,3 +6,6 @@
 *-shm
 *-wal
 .aider*
+
+# Ignore built assets
+public/dist
