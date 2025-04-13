@@ -8,4 +8,4 @@
 .aider*
 
 # Ignore built assets
-public/dist
+static/dist
