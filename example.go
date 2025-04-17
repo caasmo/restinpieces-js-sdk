@@ -9,6 +9,7 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
+	"fmt"
 
 	"github.com/caasmo/restinpieces"
 
@@ -28,24 +29,33 @@ var (
 var EmbeddedAssets embed.FS // move to embed.go
 
 func main() {
+	// Define flags directly in main
+	dbPath := flag.String("db", "", "Path to the SQLite database file (required)")
+	ageKeyPath := flag.String("age-key", "", "Path to the age identity (private key) file (required)")
+
+	// Set custom usage message for the application
+	flag.Usage = func() {
+		fmt.Fprintf(os.Stderr, "Usage: %s -db <database-path> -age-key <identity-file-path>\n\n", os.Args[0])
+		fmt.Fprintf(os.Stderr, "Start the restinpieces application server.\n\n")
+		fmt.Fprintf(os.Stderr, "Flags:\n")
+		flag.PrintDefaults()
+	}
+
+	// Parse flags
 	flag.Parse()
 
-	// Load initial configuration
-	//cfg, err := config.Load(*dbfile)
-	//if err != nil {
-	//	slog.Error("failed to load initial config", "error", err)
-	//	os.Exit(1)
-	//}
+	// Validate required flags
+	if *dbPath == "" || *ageKeyPath == "" {
+		flag.Usage()
+		os.Exit(1)
+	}
 
-	//dbPool, err := restinpieces.NewCrawshawPool(*dbfile)
-	dbPool, err := restinpieces.NewZombiezenPool(*dbfile)
+	dbPool, err := restinpieces.NewZombiezenPerformancePool(*dbfile)
 	if err != nil {
 		slog.Error("failed to create database pool", "error", err)
 	    os.Exit(1)
 	}
 
-	// Defer closing the pool here, as the user (main) owns it now.
-	// This must happen *after* app.Close() finishes.
 	defer func() {
 		slog.Info("Closing database pool...")
 		if err := dbPool.Close(); err != nil {
@@ -81,12 +91,6 @@ func main() {
 			core.GzipMiddleware(subFS),
 		),
     })
-
-	// Log embedded assets using the app's logger and config
-	// Note: config is now accessed via app.Config()
-	//logEmbeddedAssets(restinpieces.EmbeddedAssets, app.Config(), app.Logger())
-
-	//		app.Logger().Info("Starting server in verbose mode")
 
 	// Start the server
 	srv.Run() // srv is returned by restinpieces.New
