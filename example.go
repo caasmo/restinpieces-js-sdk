@@ -20,11 +20,6 @@ import (
 	r "github.com/caasmo/restinpieces/router"
 )
 
-var (
-	dbfile = flag.String("db", "app.db", "Path to the database file")
-	configFile = flag.String("config", "", "Path to configuration file")
-)
-
 //go:embed static/dist/*
 var EmbeddedAssets embed.FS // move to embed.go
 
@@ -50,7 +45,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	dbPool, err := restinpieces.NewZombiezenPerformancePool(*dbfile)
+	dbPool, err := restinpieces.NewZombiezenPerformancePool(*dbPath)
 	if err != nil {
 		slog.Error("failed to create database pool", "error", err)
 	    os.Exit(1)
@@ -64,8 +59,7 @@ func main() {
 	}()
 
 	app, srv, err := restinpieces.New(
-		*configFile,
-		//restinpieces.WithDbCrawshaw(dbPool), 
+		*ageKeyPath,
 		restinpieces.WithDbZombiezen(dbPool), 
 		restinpieces.WithRouterServeMux(),    
 		restinpieces.WithCacheRistretto(),
