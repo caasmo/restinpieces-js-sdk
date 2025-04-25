@@ -2,7 +2,7 @@ module github.com/caasmo/restinpieces-example
 
 go 1.24.2
 
-require github.com/caasmo/restinpieces v0.0.0-20250424174315-505da248b603
+require github.com/caasmo/restinpieces v0.0.0-20250425121311-6a54f54541cb
 
 require (
 	filippo.io/age v1.2.1 // indirect
@@ -25,7 +25,7 @@ require (
 	golang.org/x/oauth2 v0.29.0 // indirect
 	golang.org/x/sync v0.13.0 // indirect
 	golang.org/x/sys v0.32.0 // indirect
-	modernc.org/libc v1.63.0 // indirect
+	modernc.org/libc v1.63.1 // indirect
 	modernc.org/mathutil v1.7.1 // indirect
 	modernc.org/memory v1.10.0 // indirect
 	modernc.org/sqlite v1.37.0 // indirect
