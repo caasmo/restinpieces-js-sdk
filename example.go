@@ -59,11 +59,11 @@ func main() {
 	}()
 
 	app, srv, err := restinpieces.New(
-		restinpieces.WithDbZombiezen(dbPool), 
-		restinpieces.WithAgeKeyPath(*ageKeyPath),
-		restinpieces.WithRouterServeMux(),    
+		restinpieces.WithZombiezenPool(dbPool), 
+		core.WithAgeKeyPath(*ageKeyPath),
 		restinpieces.WithCacheRistretto(),
-		restinpieces.WithTextLogger(nil), 
+        // use default router serveMux
+        // use default slog logger Text
 	)
 	if err != nil {
 		slog.Error("failed to initialize application", "error", err)
@@ -79,7 +79,7 @@ func main() {
 	}
 
 	ffs := http.FileServerFS(subFS)
-	app.Router().Register(map[string]*r.Chain{
+	app.Router().Register(r.Chains{
         "/": r.NewChain(ffs).WithMiddleware(
 			core.StaticHeadersMiddleware,
 			core.GzipMiddleware(subFS),
