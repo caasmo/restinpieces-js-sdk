@@ -25,12 +25,12 @@ var EmbeddedAssets embed.FS // move to embed.go
 
 func main() {
 	// Define flags directly in main
-	dbPath := flag.String("db", "", "Path to the SQLite database file (required)")
+	dbPath := flag.String("dbpath", "", "Path to the SQLite database file (required)")
 	ageKeyPath := flag.String("age-key", "", "Path to the age identity (private key) file (required)")
 
 	// Set custom usage message for the application
 	flag.Usage = func() {
-		fmt.Fprintf(os.Stderr, "Usage: %s -db <database-path> -age-key <identity-file-path>\n\n", os.Args[0])
+		fmt.Fprintf(os.Stderr, "Usage: %s -dbpath <database-path> -age-key <identity-file-path>\n\n", os.Args[0])
 		fmt.Fprintf(os.Stderr, "Start the restinpieces application server.\n\n")
 		fmt.Fprintf(os.Stderr, "Flags:\n")
 		flag.PrintDefaults()
@@ -61,7 +61,7 @@ func main() {
 	app, srv, err := restinpieces.New(
 		restinpieces.WithZombiezenPool(dbPool), 
 		core.WithAgeKeyPath(*ageKeyPath),
-		restinpieces.WithCacheRistretto(),
+        // use default cache ristretto
         // use default router serveMux
         // use default slog logger Text
 	)

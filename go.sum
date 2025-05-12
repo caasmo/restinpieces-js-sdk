@@ -6,6 +6,16 @@ github.com/OneOfOne/xxhash v1.2.8 h1:31czK/TI9sNkxIKfaUfGlU47BAxQ0ztGgd9vPyqimf8
 github.com/OneOfOne/xxhash v1.2.8/go.mod h1:eZbhyaAYD41SGSSsnmcpxVoRiQ/MPUTjUdIIOT9Um7Q=
 github.com/caasmo/restinpieces v0.0.0-20250510163133-845cb2e2fb9a h1:XB9b2bM4FJSHvkdhc3g4PBQ3TJC7Wbd12lc+czrLs6Y=
 github.com/caasmo/restinpieces v0.0.0-20250510163133-845cb2e2fb9a/go.mod h1:s6wkkFmM8u1eZNGD4JnSCSXYu6Gd5f2U/ObJGMbN77c=
+github.com/caasmo/restinpieces v0.0.0-20250511141612-5787509a44fa h1:+y2Hf8G1mu5YmIo4qmEJhbQvI1ZeRvqW3lbkTCx0ZcI=
+github.com/caasmo/restinpieces v0.0.0-20250511141612-5787509a44fa/go.mod h1:s6wkkFmM8u1eZNGD4JnSCSXYu6Gd5f2U/ObJGMbN77c=
+github.com/caasmo/restinpieces v0.0.0-20250512134915-5adde5a131be h1:/n9g5a7kv0cXMlbN/MXIXj2s5AWq3dRvMBx9q+BqVIE=
+github.com/caasmo/restinpieces v0.0.0-20250512134915-5adde5a131be/go.mod h1:s6wkkFmM8u1eZNGD4JnSCSXYu6Gd5f2U/ObJGMbN77c=
+github.com/caasmo/restinpieces v0.0.0-20250512135212-62389a9de95e h1:Yo5B7HoDB3uE3udle6wtaDwWaSIPqiwk6LGQFysGfjY=
+github.com/caasmo/restinpieces v0.0.0-20250512135212-62389a9de95e/go.mod h1:s6wkkFmM8u1eZNGD4JnSCSXYu6Gd5f2U/ObJGMbN77c=
+github.com/caasmo/restinpieces v0.0.0-20250512140007-44d0b99fcea7 h1:SOa2kA/suZVQQxMPWhT2T/B3UE8FAEOxJmkOXJfIOKM=
+github.com/caasmo/restinpieces v0.0.0-20250512140007-44d0b99fcea7/go.mod h1:s6wkkFmM8u1eZNGD4JnSCSXYu6Gd5f2U/ObJGMbN77c=
+github.com/caasmo/restinpieces v0.0.0-20250512141720-bf549fb52a51 h1:E0tkeJ8/GUjYYc0Z/is1+B2WbwNsIDpOB/tisqJqC7w=
+github.com/caasmo/restinpieces v0.0.0-20250512141720-bf549fb52a51/go.mod h1:s6wkkFmM8u1eZNGD4JnSCSXYu6Gd5f2U/ObJGMbN77c=
 github.com/cespare/xxhash/v2 v2.3.0 h1:UL815xU9SqsFlibzuggzjXhog7bL6oX9BbNZnL2UFvs=
 github.com/cespare/xxhash/v2 v2.3.0/go.mod h1:VGX0DQ3Q6kWi7AoAeZDth3/j3BFtOZR5XLFGgcrjCOs=
 github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc h1:U9qPSI2PIWSS1VwoXQT9A3Wy9MM3WgvqSxFWenqJduM=
