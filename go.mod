@@ -2,7 +2,7 @@ module github.com/caasmo/restinpieces-example
 
 go 1.24.2
 
-require github.com/caasmo/restinpieces v0.0.0-20250522222914-e1dda0e70049
+require github.com/caasmo/restinpieces v0.0.0-20250524143830-59bc3a103d77
 
 require (
 	filippo.io/age v1.2.1 // indirect

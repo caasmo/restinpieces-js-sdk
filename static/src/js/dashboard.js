@@ -2,9 +2,7 @@ import Restinpieces from "./sdk/restinpieces.js";
 
 document.addEventListener("DOMContentLoaded", () => {
   // Initialize Restinpieces with config
-  const rp = new Restinpieces({
-    baseURL: "//localhost:8080",
-  });
+  const rp = new Restinpieces();
 
   // Display initial user info and token from store
   const authData = rp.store.auth.load() || {};

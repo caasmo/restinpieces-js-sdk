@@ -2,9 +2,7 @@ import Restinpieces from "./sdk/restinpieces.js";
 
 class LoginHandler {
   constructor() {
-    this.rp = new Restinpieces({
-      baseURL: "//localhost:8080",
-    });
+    this.rp = new Restinpieces();
     this.form = document.getElementById("passwordLoginForm");
     this.errorDiv = document.getElementById("error");
     this.providerList = document.getElementById("list");
