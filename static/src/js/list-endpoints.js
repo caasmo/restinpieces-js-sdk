@@ -1,8 +1,6 @@
 import Restinpieces from "./sdk/restinpieces.js";
 
-const rp = new Restinpieces({
-  baseURL: "//localhost:8080",
-});
+const rp = new Restinpieces();
 
 function renderEndpoints(endpoints, listElement, containerElement) {
   listElement.innerHTML = "";

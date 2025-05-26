@@ -6,9 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const actionsDiv = document.getElementById("actions");
   const resetButton = document.getElementById("resetButton");
 
-  const rp = new Restinpieces({
-    baseURL: "//localhost:8080"
-  });
+  const rp = new Restinpieces();
 
   // Show loading message
   messageDiv.className = "verify-message verify-loading";

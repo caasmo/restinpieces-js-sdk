@@ -7,9 +7,7 @@ function getProviders() {
   resultDiv.textContent = "Loading...";
   errorDiv.textContent = "";
 
-  const rp = new Restinpieces({
-    baseURL: "//localhost:8080",
-  });
+  const rp = new Restinpieces();
 
   rp.listOauth2Providers()
     .then((data) => {

@@ -3,7 +3,7 @@ import Restinpieces from "./sdk/restinpieces.js";
 document.addEventListener("DOMContentLoaded", () => {
   const messageDiv = document.getElementById("message");
   const params = new URLSearchParams(window.location.search);
-  const rp = new Restinpieces("//localhost:8080");
+  const rp = new Restinpieces();
   const provider = rp.store.provider.load();
 
   if (!provider) {

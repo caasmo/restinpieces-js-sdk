@@ -8,9 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const actionsDiv = document.getElementById("actions");
   const confirmButton = document.getElementById("confirmButton");
 
-  const rp = new Restinpieces({
-    baseURL: "//localhost:8080"
-  });
+  const rp = new Restinpieces();
 
   if (!token) {
     showError("Missing email change token");

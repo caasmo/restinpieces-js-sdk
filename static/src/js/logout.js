@@ -1,8 +1,6 @@
 import Restinpieces from "./sdk/restinpieces.js";
 
-const rp = new Restinpieces({
-  baseURL: "//localhost:8080",
-});
+const rp = new Restinpieces();
 rp.store.auth.save(null);
 
 document.getElementById('login-btn').addEventListener('click', () => {

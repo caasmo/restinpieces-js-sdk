@@ -11,9 +11,7 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
-  const rp = new Restinpieces({
-    baseURL: "//localhost:8080",
-  });
+  const rp = new Restinpieces();
   rp.confirmEmailVerification({ token })
     .then((response) => {
       if (!response.message) {
