@@ -91,7 +91,23 @@ class Restinpieces {
   ) {
     return this.fetchEndpoints()
       .then((endpoints) => {
+
         const methodAndPath = endpoints[endpointKey]; // e.g., "POST /api/users"
+
+ 		if (methodAndPath === undefined) {
+          // Key definitely does not exist in the endpoints object.
+          throw new Error(
+            `Endpoint key "${endpointKey}" was not found in the configured API endpoints. Please check for typos, case sensitivity, or ensure the backend provides this endpoint key.`
+          );
+		}
+
+		if (typeof methodAndPath !== 'string') {
+			// The key exists, but its value is not a string as expected.
+			throw new Error(
+				`Endpoint key "${endpointKey}" found, but its value is not a string. Received: "${String(methodAndPath)}". Expected format: "METHOD /path"`
+			);
+		}
+
         const [method, path] = methodAndPath.split(" ");
 
         if (!path) {
