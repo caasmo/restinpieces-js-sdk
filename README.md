@@ -32,6 +32,31 @@ client.authWithPassword({
 });
 ```
 
+## Building from Source
+
+To build the SDK from source, follow these steps:
+
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/caasmo/restinpieces-js-sdk.git
+   cd restinpieces-js-sdk
+   ```
+
+2. **Install esbuild globally**:
+   ```bash
+   npm install -g esbuild
+   ```
+
+3. **Run the build script**:
+   ```bash
+   # Using npm
+   npm run build
+
+   # Or using the script directly
+   ./build.sh
+   ```
+
+
 ## Features
 
 - **Automated Endpoint Discovery**: Fetches and caches API endpoints.
