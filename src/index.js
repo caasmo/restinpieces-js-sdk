@@ -2,6 +2,19 @@ import { ClientError } from "./client-error.js";
 import { LocalStore } from "./local-store.js";
 import { HttpClient } from "./http-client.js"; // Import the new class
 
+/**
+ * Internal registry of framework-supported capabilities.
+ * 
+ * Capabilities act as stable "pointers" to dynamic backend paths. This abstraction allows
+ * the SDK to provide consistent auth workflows even when underlying API routes are changed 
+ * or versioned on the server.
+ * 
+ * Protocol features:
+ * - Header Injection: The capability key is sent in the `X-Restinpieces-Capability` header.
+ * - Cache Invalidation: If the server detects a path/capability mismatch, it returns a 
+ *   `capability_mismatch` error, signaling the SDK to mark the cache as stale and reload 
+ *   the endpoint map.
+ */
 const CAPABILITIES = {
   REFRESH_AUTH: "refresh_auth",
   LIST_OAUTH2_PROVIDERS: "list_oauth2_providers",
