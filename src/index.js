@@ -1,4 +1,4 @@
-import { ClientResponseError } from "./client-response-error.js";
+import { ClientError } from "./client-error.js";
 import { LocalStore } from "./local-store.js";
 import { HttpClient } from "./http-client.js"; // Import the new class
 
@@ -61,7 +61,7 @@ class Restinpieces {
         .requestJson(endpointPath, method)
         .then((response) => {
           if (!response?.data) {
-            throw new ClientResponseError({
+            throw new ClientError({
               response: { message: "Empty endpoints response" },
             });
           }
@@ -94,26 +94,31 @@ class Restinpieces {
 
         const methodAndPath = endpoints[endpointKey]; // e.g., "POST /api/users"
 
- 		if (methodAndPath === undefined) {
-          // Key definitely does not exist in the endpoints object.
-          throw new Error(
-            `Endpoint key "${endpointKey}" was not found in the configured API endpoints. Please check for typos, case sensitivity, or ensure the backend provides this endpoint key.`
-          );
-		}
+        if (methodAndPath === undefined) {
+          throw new ClientError({
+            status: 0,
+            response: { 
+              message: `Endpoint key "${endpointKey}" was not found in the configured API endpoints. Please check for typos, case sensitivity, or ensure the backend provides this endpoint key.` 
+            }
+          });
+        }
 
-		if (typeof methodAndPath !== 'string') {
-			// The key exists, but its value is not a string as expected.
-			throw new Error(
-				`Endpoint key "${endpointKey}" found, but its value is not a string. Received: "${String(methodAndPath)}". Expected format: "METHOD /path"`
-			);
-		}
+        if (typeof methodAndPath !== 'string') {
+          throw new ClientError({
+            status: 0,
+            response: { 
+              message: `Endpoint key "${endpointKey}" found, but its value is not a string. Received: "${String(methodAndPath)}". Expected format: "METHOD /path"` 
+            }
+          });
+        }
 
         const [method, path] = methodAndPath.split(" ");
 
         if (!path) {
-          throw new Error(
-            `Endpoint "${endpointKey}" not found or invalid format in endpoints list.`,
-          );
+          throw new ClientError({
+            status: 0,
+            response: { message: `Endpoint "${endpointKey}" not found or invalid format in endpoints list.` }
+          });
         }
         // Use the HttpClient instance for the actual request
         return this.httpClient.requestJson(
@@ -126,9 +131,13 @@ class Restinpieces {
         );
       })
       .catch((error) => {
-        // Add more context to the error if it's not already a ClientResponseError
-        if (!(error instanceof ClientResponseError)) {
+        if (!(error instanceof ClientError)) {
           console.error(`Error preparing request to "${endpointKey}":`, error);
+          throw new ClientError({
+            status: 0,
+            originalError: error,
+            response: { message: error.message || "Unknown error preparing request." }
+          });
         }
         throw error;
       });
@@ -148,7 +157,7 @@ class Restinpieces {
       // Return a rejected promise directly. We don't know the final URL yet,
       // so we construct a placeholder or leave it empty.
       return Promise.reject(
-        new ClientResponseError({
+        new ClientError({
           // url: this.httpClient.buildUrl(this.baseURL, `unknown_path_for_${endpointKey}`), // Less ideal
           status: 401,
           response: { message: "No authentication token available." },
@@ -232,4 +241,5 @@ class Restinpieces {
   }
 }
 
+export { ClientError };
 export default Restinpieces;

@@ -7,10 +7,10 @@
  * @param {Error} [errData.originalError] - Original error object
  * @param {Object} [errData.response] - Response data from the server
  */
-export class ClientResponseError extends Error {
+export class ClientError extends Error {
   constructor(errData) {
     // Pass the message to parent Error constructor if available
-    super(errData?.response?.message || "ClientResponseError");
+    super(errData?.response?.message || "ClientError");
 
     this.url = errData?.url || "";
     this.status = errData?.status || 0;
@@ -18,7 +18,7 @@ export class ClientResponseError extends Error {
     this.isAbort = Boolean(errData?.isAbort);
     this.originalError = errData?.originalError;
     this.response = errData?.response || {};
-    this.name = "ClientResponseError " + this.status;
+    this.name = "ClientError " + this.status;
     this.message = this.response?.message; // Prioritize the server's message
     this.code = this.response?.code || "";
     /**

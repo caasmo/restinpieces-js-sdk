@@ -1,4 +1,4 @@
-import { ClientResponseError } from "./client-response-error.js";
+import { ClientError } from "./client-error.js";
 
 export class HttpClient {
   constructor(baseURL) {
@@ -54,7 +54,7 @@ export class HttpClient {
               // If parsing fails, use the raw text as the message
               parsedError = { message: text || "Unknown error" };
             }
-            throw new ClientResponseError({
+            throw new ClientError({
               url: response.url,
               status: response.status,
               response: parsedError,
@@ -69,7 +69,7 @@ export class HttpClient {
         // response.json() is javscript object or array, etc scalar
         return response.json().catch(() => {
           // Handle json in case of not json.
-          throw new ClientResponseError({
+          throw new ClientError({
             url: response.url,
             status: response.status,
             response: { message: "Invalid JSON response" },
@@ -77,13 +77,13 @@ export class HttpClient {
         });
       })
       .catch((error) => {
-        // Ensure *all* errors are wrapped in ClientResponseError
-        if (error instanceof ClientResponseError) {
-          throw error; // Already a ClientResponseError, re-throw
+        // Ensure *all* errors are wrapped in ClientError
+        if (error instanceof ClientError) {
+          throw error; // Already a ClientError, re-throw
         }
         // Check if it's an AbortError
         if (error.name === "AbortError") {
-          throw new ClientResponseError({
+          throw new ClientError({
             url: url, // Use the constructed URL
             isAbort: true,
             originalError: error,
@@ -91,7 +91,7 @@ export class HttpClient {
           });
         }
         // Wrap other errors (e.g., network errors)
-        throw new ClientResponseError({
+        throw new ClientError({
           url: url, // Use the constructed URL
           originalError: error,
           response: { message: error.message || "Network or unknown error" },
