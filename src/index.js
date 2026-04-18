@@ -73,33 +73,25 @@ class Restinpieces {
 
   // --- Endpoint Management ---
 
-  fetchEndpoints() {
-    const cachedEndpoints = this.store.endpoints.load();
-    if (cachedEndpoints) {
-      return Promise.resolve(cachedEndpoints);
-    }
-
+  // 1. Pure network fetch (no cache reading!)
+  _fetchEndpoints() {
     if (!this.endpointsPromise) {
-      // Use configured endpoints path
       const [method, endpointPath] = this.endpointsPath.split(" ");
 
-      // Use the HttpClient instance for the request
       this.endpointsPromise = this.httpClient
         .requestJson(endpointPath, method)
         .then((response) => {
           if (!response?.data) {
-            throw new ClientError({
-              response: { message: "Empty endpoints response" },
-            });
+            throw new ClientError({ response: { message: "Empty endpoints list received" } });
           }
-
-          this.store.endpoints.save(response.data);
-          this.endpointsPromise = null; // Reset after completion
+          
+          // Only write to the cache. We don't read from it.
+          this.store.endpoints.save(response.data); 
+          this.endpointsPromise = null; 
           return response.data;
         })
         .catch((error) => {
-          this.endpointsPromise = null; // Reset on error
-          console.error("Failed to fetch endpoints:", error);
+          this.endpointsPromise = null; // Clear promise on error
           throw error;
         });
     }
@@ -119,7 +111,7 @@ class Restinpieces {
     let endpoints = this.store.endpoints.load();
 
     if (this._endpointsStale || !endpoints || !endpoints[endpointKey]) {
-      endpoints = await this.fetchEndpoints();
+      endpoints = await this._fetchEndpoints();
       this._endpointsStale = false;
     }
 
