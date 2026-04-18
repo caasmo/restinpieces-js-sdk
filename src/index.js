@@ -2,6 +2,19 @@ import { ClientError } from "./client-error.js";
 import { LocalStore } from "./local-store.js";
 import { HttpClient } from "./http-client.js"; // Import the new class
 
+const CAPABILITIES = {
+  REFRESH_AUTH: "refresh_auth",
+  LIST_OAUTH2_PROVIDERS: "list_oauth2_providers",
+  REGISTER_WITH_PASSWORD: "register_with_password",
+  REQUEST_EMAIL_VERIFICATION: "request_email_verification",
+  CONFIRM_EMAIL_VERIFICATION: "confirm_email_verification",
+  CONFIRM_EMAIL_CHANGE: "confirm_email_change",
+  REQUEST_PASSWORD_RESET: "request_password_reset",
+  REQUEST_EMAIL_CHANGE: "request_email_change",
+  AUTH_WITH_PASSWORD: "auth_with_password",
+  AUTH_WITH_OAUTH2: "auth_with_oauth2",
+};
+
 class Restinpieces {
   // Default configuration
   static defaultConfig = {
@@ -21,6 +34,7 @@ class Restinpieces {
     this.httpClient = new HttpClient(this.baseURL); // Instantiate HttpClient
     this.endpointsPath = mergedConfig.endpointsPath;
     this.endpointsPromise = null; // Tracks ongoing fetch endpoint requests
+    this._endpointsStale = false; // Add this line
 
     // TODO: Consider moving these to config or removing if unused
     //this.recordServices = {};
@@ -82,102 +96,63 @@ class Restinpieces {
 
   // --- Core Request Methods ---
 
-  request(
-    endpointKey,
-    queryParams = {},
-    body = null,
-    headers = {},
-    signal = null,
-  ) {
-    return this.fetchEndpoints()
-      .then((endpoints) => {
-
-        const methodAndPath = endpoints[endpointKey]; // e.g., "POST /api/users"
-
-        if (methodAndPath === undefined) {
-          throw new ClientError({
-            status: 0,
-            response: { 
-              message: `Endpoint key "${endpointKey}" was not found in the configured API endpoints. Please check for typos, case sensitivity, or ensure the backend provides this endpoint key.` 
-            }
-          });
-        }
-
-        if (typeof methodAndPath !== 'string') {
-          throw new ClientError({
-            status: 0,
-            response: { 
-              message: `Endpoint key "${endpointKey}" found, but its value is not a string. Received: "${String(methodAndPath)}". Expected format: "METHOD /path"` 
-            }
-          });
-        }
-
-        const [method, path] = methodAndPath.split(" ");
-
-        if (!path) {
-          throw new ClientError({
-            status: 0,
-            response: { message: `Endpoint "${endpointKey}" not found or invalid format in endpoints list.` }
-          });
-        }
-        // Use the HttpClient instance for the actual request
-        return this.httpClient.requestJson(
-          path,
-          method,
-          queryParams,
-          body,
-          headers,
-          signal,
-        );
-      })
-      .catch((error) => {
-        if (!(error instanceof ClientError)) {
-          console.error(`Error preparing request to "${endpointKey}":`, error);
-          throw new ClientError({
-            status: 0,
-            originalError: error,
-            response: { message: error.message || "Unknown error preparing request." }
-          });
-        }
-        throw error;
-      });
+  // Public HTTP primitive — knows nothing about endpoint keys or caches.
+  // Use this to call custom endpoints outside the framework's CAPABILITIES list.
+  request(method, path, queryParams = {}, body = null, headers = {}, signal = null) {
+    return this.httpClient.requestJson(path, method, queryParams, body, headers, signal);
   }
 
-  requestAuth(
-    endpointKey,
-    queryParams = {},
-    body = null,
-    headers = {},
-    signal = null,
-  ) {
-    const authData = this.store.auth.load() || {};
-    const token = authData.access_token || "";
+  async #executeCapability(endpointKey, queryParams, body, headers, signal, isAuthRequired = false) {
+    let endpoints = this.store.endpoints.load();
 
-    if (!token) {
-      // Return a rejected promise directly. We don't know the final URL yet,
-      // so we construct a placeholder or leave it empty.
-      return Promise.reject(
-        new ClientError({
-          // url: this.httpClient.buildUrl(this.baseURL, `unknown_path_for_${endpointKey}`), // Less ideal
-          status: 401,
-          response: { message: "No authentication token available." },
-        }),
-      );
+    if (this._endpointsStale || !endpoints || !endpoints[endpointKey]) {
+      endpoints = await this.fetchEndpoints();
+      this._endpointsStale = false;
     }
 
-    const authHeaders = {
+    const methodAndPath = endpoints[endpointKey];
+    if (!methodAndPath || typeof methodAndPath !== "string") {
+      throw new ClientError({
+        status: 0,
+        response: {
+          message: `Endpoint key "${endpointKey}" not found or invalid in the endpoints list.`,
+        },
+      });
+    }
+
+    const [method, path] = methodAndPath.split(" ");
+
+    const requestHeaders = {
       ...headers,
-      Authorization: `Bearer ${token}`,
+      "X-Restinpieces-Capability": endpointKey,
     };
 
-    // Delegate the actual request to the general `request` method
-    return this.request(endpointKey, queryParams, body, authHeaders, signal);
+    if (isAuthRequired) {
+      const authData = this.store.auth.load() || {};
+      if (!authData.access_token) {
+        throw new ClientError({
+          status: 401,
+          response: { message: "No authentication token available." },
+        });
+      }
+      requestHeaders["Authorization"] = `Bearer ${authData.access_token}`;
+    }
+
+    try {
+      return await this.request(method, path, queryParams, body, requestHeaders, signal);
+    } catch (error) {
+      if (error instanceof ClientError && error.code === "capability_mismatch") {
+        this._endpointsStale = true;
+        this.store.endpoints.save(null);
+      }
+      throw error;
+    }
   }
 
   // --- Authentication Methods ---
 
   refreshAuth() {
-    return this.requestAuth("refresh_auth")
+    return this.#executeCapability(CAPABILITIES.REFRESH_AUTH, {}, null, {}, null, true)
       .then((response) => {
         if (response?.data?.access_token) {
           this.store.auth.save(response.data);
@@ -187,11 +162,11 @@ class Restinpieces {
   }
 
   listOauth2Providers() {
-    return this.request("list_oauth2_providers");
+    return this.#executeCapability(CAPABILITIES.LIST_OAUTH2_PROVIDERS, {}, null, {}, null, false);
   }
 
   registerWithPassword(body = null, headers = {}, signal = null) {
-    return this.request("register_with_password", {}, body, headers, signal)
+    return this.#executeCapability(CAPABILITIES.REGISTER_WITH_PASSWORD, {}, body, headers, signal, false)
       .then((response) => {
         if (response?.data?.access_token) {
           this.store.auth.save(response.data);
@@ -201,27 +176,27 @@ class Restinpieces {
   }
 
   requestEmailVerification(body = null, headers = {}, signal = null) {
-    return this.requestAuth("request_email_verification", {}, body, headers, signal);
+    return this.#executeCapability(CAPABILITIES.REQUEST_EMAIL_VERIFICATION, {}, body, headers, signal, true);
   }
 
   confirmEmailVerification(body = null, headers = {}, signal = null) {
-    return this.request("confirm_email_verification", {}, body, headers, signal);
+    return this.#executeCapability(CAPABILITIES.CONFIRM_EMAIL_VERIFICATION, {}, body, headers, signal, false);
   }
 
   confirmEmailChange(body = null, headers = {}, signal = null) {
-    return this.request("confirm_email_change", {}, body, headers, signal);
+    return this.#executeCapability(CAPABILITIES.CONFIRM_EMAIL_CHANGE, {}, body, headers, signal, false);
   }
 
   requestPasswordReset(body = null, headers = {}, signal = null) {
-    return this.request("request_password_reset", {}, body, headers, signal);
+    return this.#executeCapability(CAPABILITIES.REQUEST_PASSWORD_RESET, {}, body, headers, signal, false);
   }
 
   requestEmailChange(body = null, headers = {}, signal = null) {
-    return this.requestAuth("request_email_change", {}, body, headers, signal);
+    return this.#executeCapability(CAPABILITIES.REQUEST_EMAIL_CHANGE, {}, body, headers, signal, true);
   }
 
   authWithPassword(body = null, headers = {}, signal = null) {
-    return this.request("auth_with_password", {}, body, headers, signal)
+    return this.#executeCapability(CAPABILITIES.AUTH_WITH_PASSWORD, {}, body, headers, signal, false)
       .then((response) => {
         if (response?.data?.access_token) {
           this.store.auth.save(response.data);
@@ -231,7 +206,7 @@ class Restinpieces {
   }
 
   authWithOauth2(body = null, headers = {}, signal = null) {
-    return this.request("auth_with_oauth2", {}, body, headers, signal)
+    return this.#executeCapability(CAPABILITIES.AUTH_WITH_OAUTH2, {}, body, headers, signal, false)
       .then((response) => {
         if (response?.data?.access_token) {
           this.store.auth.save(response.data);
