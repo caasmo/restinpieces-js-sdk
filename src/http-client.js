@@ -1,20 +1,57 @@
 import { ClientError } from "./client-error.js";
 
+/**
+ * Low-level HTTP client that wraps `fetch` with JSON handling and
+ * standardized {@link ClientError} responses.
+ *
+ * All public methods return Promises that **always reject with a
+ * {@link ClientError}** — never with a raw `TypeError` or `DOMException`.
+ * This means callers need only a single `catch` branch and can rely on
+ * consistent error fields (`status`, `code`, `isAbort`, `formErrors`, …).
+ *
+ * @example
+ * const http = new HttpClient("https://api.example.com");
+ * const data = await http.requestJson("/users", "GET", { page: 2 });
+ */
 export class HttpClient {
+  /**
+   * @param {string} baseURL - Base URL prepended to every request path.
+   *   Can be absolute (`"https://api.example.com"`) or relative (`"/api"`).
+   */
   constructor(baseURL) {
+    /** @type {string} */
     this.baseURL = baseURL;
   }
 
   /**
-   * Makes an HTTP request with JSON handling and standardized error responses
+   * Makes an HTTP request with JSON handling and standardized error responses.
    *
-   * @param {string} path - The URL path to request
-   * @param {string} [method="GET"] - The HTTP method to use
-   * @param {Object} [queryParams={}] - Query parameters to include
-   * @param {Object|null} [body=null] - Request body (will be JSON.stringified)
-   * @param {Object} [headers={}] - Additional request headers
-   * @param {AbortSignal|null} [signal=null] - Optional AbortSignal for cancellation
-   * @returns {Promise<any>} - Resolves with parsed response JSON
+   * Behaviour summary:
+   * - Non-2xx responses are parsed and thrown as {@link ClientError}.
+   * - 204 No Content resolves with `{}`.
+   * - Aborted requests resolve as a {@link ClientError} with `isAbort: true`.
+   * - All other unexpected errors (network failures, invalid JSON) are
+   *   wrapped in {@link ClientError} before being re-thrown.
+   *
+   * @param {string} path - URL path to append to `baseURL`
+   * @param {string} [method="GET"] - HTTP method (`"GET"`, `"POST"`, …)
+   * @param {Record<string, *>} [queryParams={}] - Key/value pairs serialized into the query string
+   * @param {Record<string, *>|null} [body=null] - Request body; will be `JSON.stringify`-ed
+   * @param {Record<string, string>} [headers={}] - Additional request headers (merged over defaults)
+   * @param {AbortSignal|null} [signal=null] - Optional signal for request cancellation
+   * @returns {Promise<*>} Resolves with the parsed JSON response body
+   * @throws {ClientError} On any non-2xx status, network error, or abort
+   *
+   * @example
+   * const controller = new AbortController();
+   * const user = await http.requestJson(
+   *   "/users/42",
+   *   "PATCH",
+   *   {},
+   *   { name: "Alice" },
+   *   { "X-Custom": "value" },
+   *   controller.signal,
+   * );
    */
   requestJson(
     path,
@@ -31,27 +68,26 @@ export class HttpClient {
       url += (url.includes("?") ? "&" : "?") + serializedQueryParams;
     }
 
+    /** @type {Record<string, string>} */
     const requestHeaders = {
       "Content-Type": "application/json",
-      ...headers, // Allow overriding
+      ...headers,
     };
 
     return fetch(url, {
       method,
       headers: requestHeaders,
       body: body ? JSON.stringify(body) : null,
-      signal, // Pass the signal to fetch
+      signal,
     })
       .then((response) => {
-        // Check for non-2xx status *before* parsing JSON
         if (!response.ok) {
-          // Try to parse JSON error, but be resilient to non-JSON errors
           return response.text().then((text) => {
+            /** @type {import('./client-error.js').ErrorResponse} */
             let parsedError = {};
             try {
               parsedError = JSON.parse(text);
             } catch (_) {
-              // If parsing fails, use the raw text as the message
               parsedError = { message: text || "Unknown error" };
             }
             throw new ClientError({
@@ -62,13 +98,11 @@ export class HttpClient {
           });
         }
 
-        // Handle 204 No Content (and similar) gracefully.
         if (response.status === 204) {
-          return {}; // Return empty object for no-content
+          return {};
         }
-        // response.json() is javscript object or array, etc scalar
+
         return response.json().catch(() => {
-          // Handle json in case of not json.
           throw new ClientError({
             url: response.url,
             status: response.status,
@@ -77,22 +111,19 @@ export class HttpClient {
         });
       })
       .catch((error) => {
-        // Ensure *all* errors are wrapped in ClientError
         if (error instanceof ClientError) {
-          throw error; // Already a ClientError, re-throw
+          throw error;
         }
-        // Check if it's an AbortError
         if (error.name === "AbortError") {
           throw new ClientError({
-            url: url, // Use the constructed URL
+            url,
             isAbort: true,
             originalError: error,
             response: { message: "Request aborted" },
           });
         }
-        // Wrap other errors (e.g., network errors)
         throw new ClientError({
-          url: url, // Use the constructed URL
+          url,
           originalError: error,
           response: { message: error.message || "Network or unknown error" },
         });
@@ -100,24 +131,30 @@ export class HttpClient {
   }
 
   /**
-   * Builds a URL by combining baseUrl and path for browser environments.
+   * Builds a full URL by combining `baseUrl` and an optional `path`.
    *
-   * @param {string} baseUrl - The base URL (absolute or relative)
-   * @param {string} [path] - Optional path to append
-   * @return {string} The combined URL
+   * Handles relative `baseUrl` values by resolving them against the
+   * current browser location, so the method works correctly whether the
+   * app is served from the root or a sub-directory.
+   *
+   * @param {string} baseUrl - Base URL (absolute or relative)
+   * @param {string} [path] - Optional path segment to append
+   * @returns {string} The fully resolved URL string
+   *
+   * @example
+   * buildUrl("https://api.example.com", "/users") // "https://api.example.com/users"
+   * buildUrl("/api", "users")                      // "https://current-host/api/users"
+   * buildUrl("", "items")                          // relative to current directory
    */
   buildUrl(baseUrl, path) {
-    // Handle empty baseUrl - use current directory
     if (baseUrl === "") {
       const pathParts = window.location.pathname.split("/");
-      pathParts.pop(); // Remove the last part (file or empty string)
+      pathParts.pop();
       baseUrl = pathParts.join("/") + "/";
     }
 
-    // Create full URL, handling relative URLs
     let url;
     if (!baseUrl.startsWith("http://") && !baseUrl.startsWith("https://")) {
-      // For relative URLs, use the URL constructor with current location as base
       const base = baseUrl.startsWith("/")
         ? window.location.origin
         : window.location.href;
@@ -126,7 +163,6 @@ export class HttpClient {
       url = baseUrl;
     }
 
-    // Add path if provided
     if (path) {
       url =
         url +
@@ -138,40 +174,35 @@ export class HttpClient {
   }
 
   /**
-   * Serializes an object of parameters into a URL-encoded query string.
+   * Serializes a params object into a URL-encoded query string.
    *
-   * This function handles various data types:
-   * - Strings, numbers, booleans: directly encoded
-   * - Arrays: creates multiple entries with the same parameter name
-   * - Date objects: converted to ISO strings with "T" replaced by space
-   * - Objects: converted to JSON strings and encoded
-   * - null/undefined values: skipped entirely
+   * Type-specific encoding rules:
+   * - `null` / `undefined` values are **skipped**
+   * - `Date` → ISO 8601 string with `T` replaced by a space
+   * - `Array` → repeated key entries: `colors=red&colors=blue`
+   * - Plain `Object` → JSON-encoded and percent-encoded
+   * - Primitives (string, number, boolean) → `String()` + percent-encoded
    *
-   * @param {Object} params - The object containing parameters to serialize
-   * @returns {string} URL-encoded query string
+   * @param {Record<string, * | *[]>} params - Parameters to serialize
+   * @returns {string} URL-encoded query string (without the leading `?`)
    *
    * @example
-   * // Basic parameters
    * serializeQueryParams({ name: "John Doe", age: 30 })
-   * // Returns: "name=John%20Doe&age=30"
+   * // "name=John%20Doe&age=30"
    *
    * @example
-   * // Array parameters
-   * serializeQueryParams({ colors: ["red", "green", "blue"] })
-   * // Returns: "colors=red&colors=green&colors=blue"
+   * serializeQueryParams({ colors: ["red", "green"] })
+   * // "colors=red&colors=green"
    *
    * @example
-   * // Object parameters (converted to JSON)
-   * serializeQueryParams({ filter: { minPrice: 10, maxPrice: 100 } })
-   * // Returns: "filter=%7B%22minPrice%22%3A10%2C%22maxPrice%22%3A100%7D"
+   * serializeQueryParams({ filter: { minPrice: 10 } })
+   * // "filter=%7B%22minPrice%22%3A10%7D"
    *
    * @example
-   * // Date parameters
    * serializeQueryParams({ created: new Date("2025-03-21T12:00:00Z") })
-   * // Returns: "created=2025-03-21%2012%3A00%3A00.000Z"
+   * // "created=2025-03-21%2012%3A00%3A00.000Z"
    *
    * @example
-   * // Handling null values
    * serializeQueryParams({ name: "Test", category: null })
    * // Returns: "name=Test" (category is skipped)
    *
