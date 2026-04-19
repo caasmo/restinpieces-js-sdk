@@ -8,12 +8,6 @@ The official JavaScript SDK for RestInPieces.
 npm install restinpieces
 ```
 
-Or directly from GitHub:
-
-```bash
-npm install github:caasmo/restinpieces-js-sdk
-```
-
 ## Usage
 
 ```javascript
@@ -32,37 +26,49 @@ client.authWithPassword({
 });
 ```
 
-## Building from Source
-
-To build the SDK from source, follow these steps:
-
-1. **Clone the repository**:
-   ```bash
-   git clone https://github.com/caasmo/restinpieces-js-sdk.git
-   cd restinpieces-js-sdk
-   ```
-
-2. **Install esbuild globally**:
-   ```bash
-   npm install -g esbuild
-   ```
-
-3. **Run the build script**:
-   ```bash
-   # Using npm
-   npm run build
-
-   # Or using the script directly
-   ./build.sh
-   ```
-
-
 ## Features
 
-- **Automated Endpoint Discovery**: Fetches and caches API endpoints.
-- **Authentication Management**: Built-in handling for JWT and OAuth2.
-- **Lightweight**: Zero dependencies, bundled with `esbuild`.
-- **Browser Compatible**: Uses `fetch` and `localStorage`.
+- **Automated Endpoint Discovery**: Dynamic resolution of backend paths via capabilities.
+- **Authentication Management**: Built-in handling for JWT and OAuth2 workflows.
+- **Lightweight & Fast**: Bundled with `esbuild` for minimal footprint.
+- **TypeScript Support**: Full type definitions included for a better developer experience.
+- **Modern ESM**: Ships as a pure ES module.
+
+## Development
+
+### Setup
+
+Clone the repository and install development dependencies:
+
+```bash
+git clone https://github.com/caasmo/restinpieces-js-sdk.git
+cd restinpieces-js-sdk
+npm install
+```
+
+### Building
+
+The build process uses `esbuild` to bundle the source and `tsc` to generate type definitions. The output is located in the `dist/` directory.
+
+```bash
+npm run build
+```
+
+### Linting
+
+We use ESLint with JSDoc support to maintain code quality and documentation consistency.
+
+```bash
+# Run linter
+npm run lint
+
+# Automatically fix issues
+npm run lint:fix
+```
+
+### Type Checking
+
+The SDK is written in JavaScript but provides TypeScript declarations. Types are automatically generated during the build process and verified via the project's configuration.
 
 ## License
 
