@@ -54,7 +54,7 @@ export class LocalStore {
    * Reads and JSON-parses a value from `localStorage`.
    *
    * @template T
-   * @param {keyof typeof LocalStore['#keys']} key - Domain key (`"auth"`, `"provider"`, `"endpoints"`)
+   * @param {"auth" | "provider" | "endpoints"} key - Domain key (`"auth"`, `"provider"`, `"endpoints"`)
    * @returns {T|null} Parsed value, or `null` if the key is absent
    * @throws {Error} When `localStorage` access or JSON parsing fails
    */
@@ -64,7 +64,7 @@ export class LocalStore {
       return value ? JSON.parse(value) : null;
     } catch (error) {
       console.error(`Failed to retrieve ${key}:`, error);
-      throw new Error(`Failed to retrieve ${key}: ` + error.message);
+      throw new Error(`Failed to retrieve ${key}: ` + error.message, { cause: error });
     }
   }
 
@@ -72,7 +72,7 @@ export class LocalStore {
    * JSON-serializes `value` and writes it to `localStorage`.
    *
    * @template T
-   * @param {keyof typeof LocalStore['#keys']} key - Domain key
+   * @param {"auth" | "provider" | "endpoints"} key - Domain key
    * @param {T} value - Value to store; must be JSON-serializable
    * @returns {void}
    * @throws {Error} When `localStorage` is unavailable or the quota is exceeded
@@ -82,7 +82,7 @@ export class LocalStore {
       localStorage.setItem(LocalStore.#keys[key], JSON.stringify(value));
     } catch (error) {
       console.error(`Failed to store ${key}:`, error);
-      throw new Error(`Failed to store ${key}: ` + error.message);
+      throw new Error(`Failed to store ${key}: ` + error.message, { cause: error });
     }
   }
 

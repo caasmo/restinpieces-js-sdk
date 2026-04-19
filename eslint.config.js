@@ -21,6 +21,7 @@ export default [
       "jsdoc/check-param-names": "error",          // catch param name mismatches
       "jsdoc/check-types": "error",                // catch typos in types
       "jsdoc/no-undefined-types": "warn",          // catch missing @typedef refs
+      "jsdoc/reject-any-type": "off",              // allow * and any for generic payloads
     },
   },
 ];

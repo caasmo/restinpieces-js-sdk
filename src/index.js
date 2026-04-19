@@ -31,17 +31,17 @@ import { HttpClient } from "./http-client.js";
 
 /**
  * @typedef {object} AuthStore
- * @property {function(import('./local-store.js').AuthData|null): void} save
- * @property {function(): import('./local-store.js').AuthData|null} load
+ * @property {function(import('./local-store.js').AuthData|null): void} save - Persists authentication data
+ * @property {function(): import('./local-store.js').AuthData|null} load - Loads persisted authentication data
  * @property {function(): boolean} isValid - Returns `true` if the stored token is present and unexpired
  */
 
 /**
  * @typedef {object} ClientStore
  * Typed facades for each persisted domain.
- * @property {AuthStore} auth
- * @property {{ save: function(import('./local-store.js').ProviderData|null): void, load: function(): import('./local-store.js').ProviderData|null }} provider
- * @property {{ save: function(import('./local-store.js').EndpointMap|null): void, load: function(): import('./local-store.js').EndpointMap|null }} endpoints
+ * @property {AuthStore} auth - Authentication storage facade
+ * @property {{ save: function(import('./local-store.js').ProviderData|null): void, load: function(): import('./local-store.js').ProviderData|null }} provider - OAuth2 provider storage facade
+ * @property {{ save: function(import('./local-store.js').EndpointMap|null): void, load: function(): import('./local-store.js').EndpointMap|null }} endpoints - Endpoint map storage facade
  */
 
 /**
@@ -213,11 +213,11 @@ class Restinpieces {
    *
    * @param {string} method - HTTP method (e.g. `"GET"`, `"POST"`)
    * @param {string} path - URL path to append to `baseURL`
-   * @param {Record<string, *>} [queryParams] - Query string parameters
-   * @param {Record<string, *>|null} [body] - Request body (JSON-serialized)
+   * @param {Record<string, any>} [queryParams] - Query string parameters
+   * @param {Record<string, any>|null} [body] - Request body (JSON-serialized)
    * @param {Record<string, string>} [headers] - Additional request headers
    * @param {AbortSignal|null} [signal] - Optional cancellation signal
-   * @returns {Promise<*>} Parsed JSON response body
+   * @returns {Promise<any>} Parsed JSON response body
    * @throws {ClientError}
    */
   request(method, path, queryParams = {}, body = null, headers = {}, signal = null) {
@@ -232,12 +232,12 @@ class Restinpieces {
    * call transparently re-discovers the correct path.
    *
    * @param {string} endpointKey - One of the values in {@link CAPABILITIES}
-   * @param {Record<string, *>} queryParams
-   * @param {Record<string, *>|null} body
+   * @param {Record<string, any>} queryParams
+   * @param {Record<string, any>|null} body
    * @param {Record<string, string>} headers
    * @param {AbortSignal|null} signal
    * @param {boolean} [isAuthRequired] - When `true`, injects a Bearer token from storage
-   * @returns {Promise<*>} Parsed JSON response body
+   * @returns {Promise<any>} Parsed JSON response body
    * @throws {ClientError} When the endpoint key is unknown, the token is missing, or the request fails
    */
   async #executeCapability(endpointKey, queryParams, body, headers, signal, isAuthRequired = false) {
@@ -325,7 +325,7 @@ class Restinpieces {
    * Registers a new user with email and password.
    * Saves auth data to storage when the server returns an access token.
    *
-   * @param {{ email: string, password: string, [key: string]: * }|null} [body] - Registration payload
+   * @param {{ email: string, password: string, [key: string]: any }|null} [body] - Registration payload
    * @param {Record<string, string>} [headers]
    * @param {AbortSignal|null} [signal]
    * @returns {Promise<ApiResponse<import('./local-store.js').AuthData>>}
@@ -345,10 +345,10 @@ class Restinpieces {
    * Requests a verification email for the currently authenticated user.
    * Requires a valid session (Bearer token in storage).
    *
-   * @param {Record<string, *>|null} [body]
+   * @param {Record<string, any>|null} [body]
    * @param {Record<string, string>} [headers]
    * @param {AbortSignal|null} [signal]
-   * @returns {Promise<ApiResponse<{}>>}
+   * @returns {Promise<ApiResponse<object>>}
    * @throws {ClientError}
    */
   requestEmailVerification(body = null, headers = {}, signal = null) {
@@ -361,7 +361,7 @@ class Restinpieces {
    * @param {{ token: string }|null} [body]
    * @param {Record<string, string>} [headers]
    * @param {AbortSignal|null} [signal]
-   * @returns {Promise<ApiResponse<{}>>}
+   * @returns {Promise<ApiResponse<object>>}
    * @throws {ClientError}
    */
   confirmEmailVerification(body = null, headers = {}, signal = null) {
@@ -374,7 +374,7 @@ class Restinpieces {
    * @param {{ email: string }|null} [body]
    * @param {Record<string, string>} [headers]
    * @param {AbortSignal|null} [signal]
-   * @returns {Promise<ApiResponse<{}>>}
+   * @returns {Promise<ApiResponse<object>>}
    * @throws {ClientError}
    */
   requestEmailOtpVerification(body = null, headers = {}, signal = null) {
@@ -387,7 +387,7 @@ class Restinpieces {
    * @param {{ email: string, otp: string }|null} [body]
    * @param {Record<string, string>} [headers]
    * @param {AbortSignal|null} [signal]
-   * @returns {Promise<ApiResponse<{}>>}
+   * @returns {Promise<ApiResponse<object>>}
    * @throws {ClientError}
    */
   confirmEmailOtpVerification(body = null, headers = {}, signal = null) {
@@ -400,7 +400,7 @@ class Restinpieces {
    * @param {{ token: string }|null} [body]
    * @param {Record<string, string>} [headers]
    * @param {AbortSignal|null} [signal]
-   * @returns {Promise<ApiResponse<{}>>}
+   * @returns {Promise<ApiResponse<object>>}
    * @throws {ClientError}
    */
   confirmEmailChange(body = null, headers = {}, signal = null) {
@@ -413,7 +413,7 @@ class Restinpieces {
    * @param {{ email: string }|null} [body]
    * @param {Record<string, string>} [headers]
    * @param {AbortSignal|null} [signal]
-   * @returns {Promise<ApiResponse<{}>>}
+   * @returns {Promise<ApiResponse<object>>}
    * @throws {ClientError}
    */
   requestPasswordReset(body = null, headers = {}, signal = null) {
@@ -427,7 +427,7 @@ class Restinpieces {
    * @param {{ newEmail: string }|null} [body]
    * @param {Record<string, string>} [headers]
    * @param {AbortSignal|null} [signal]
-   * @returns {Promise<ApiResponse<{}>>}
+   * @returns {Promise<ApiResponse<object>>}
    * @throws {ClientError}
    */
   requestEmailChange(body = null, headers = {}, signal = null) {
@@ -467,7 +467,7 @@ class Restinpieces {
    * Completes an OAuth2 authentication flow using a code/token from the provider.
    * Saves auth data to storage on success.
    *
-   * @param {{ code: string, provider: string, [key: string]: * }|null} [body]
+   * @param {{ code: string, provider: string, [key: string]: any }|null} [body]
    * @param {Record<string, string>} [headers]
    * @param {AbortSignal|null} [signal]
    * @returns {Promise<ApiResponse<import('./local-store.js').AuthData>>}
