@@ -211,6 +211,31 @@ declare class Restinpieces {
         token: string;
     } | null, headers?: Record<string, string>, signal?: AbortSignal | null): Promise<ApiResponse<{}>>;
     /**
+     * Requests a verification OTP for the given email address.
+     *
+     * @param {{ email: string }|null} [body]
+     * @param {Record<string, string>} [headers]
+     * @param {AbortSignal|null} [signal]
+     * @returns {Promise<ApiResponse<{}>>}
+     * @throws {ClientError}
+     */
+    requestEmailOtpVerification(body?: {
+        email: string;
+    } | null, headers?: Record<string, string>, signal?: AbortSignal | null): Promise<ApiResponse<{}>>;
+    /**
+     * Confirms an email address using an OTP received by email.
+     *
+     * @param {{ email: string, otp: string }|null} [body]
+     * @param {Record<string, string>} [headers]
+     * @param {AbortSignal|null} [signal]
+     * @returns {Promise<ApiResponse<{}>>}
+     * @throws {ClientError}
+     */
+    confirmEmailOtpVerification(body?: {
+        email: string;
+        otp: string;
+    } | null, headers?: Record<string, string>, signal?: AbortSignal | null): Promise<ApiResponse<{}>>;
+    /**
      * Confirms an email address change using a token received at the new address.
      *
      * @param {{ token: string }|null} [body]

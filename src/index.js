@@ -70,6 +70,8 @@ const CAPABILITIES = {
   REQUEST_EMAIL_CHANGE: "request_email_change",
   AUTH_WITH_PASSWORD: "auth_with_password",
   AUTH_WITH_OAUTH2: "auth_with_oauth2",
+  REQUEST_EMAIL_OTP_VERIFICATION: "request_email_otp_verification",
+  CONFIRM_EMAIL_OTP_VERIFICATION: "confirm_email_otp_verification",
 };
 
 /**
@@ -364,6 +366,32 @@ class Restinpieces {
    */
   confirmEmailVerification(body = null, headers = {}, signal = null) {
     return this.#executeCapability(CAPABILITIES.CONFIRM_EMAIL_VERIFICATION, {}, body, headers, signal, false);
+  }
+
+  /**
+   * Requests a verification OTP for the given email address.
+   *
+   * @param {{ email: string }|null} [body]
+   * @param {Record<string, string>} [headers]
+   * @param {AbortSignal|null} [signal]
+   * @returns {Promise<ApiResponse<{}>>}
+   * @throws {ClientError}
+   */
+  requestEmailOtpVerification(body = null, headers = {}, signal = null) {
+    return this.#executeCapability(CAPABILITIES.REQUEST_EMAIL_OTP_VERIFICATION, {}, body, headers, signal, false);
+  }
+
+  /**
+   * Confirms an email address using an OTP received by email.
+   *
+   * @param {{ email: string, otp: string }|null} [body]
+   * @param {Record<string, string>} [headers]
+   * @param {AbortSignal|null} [signal]
+   * @returns {Promise<ApiResponse<{}>>}
+   * @throws {ClientError}
+   */
+  confirmEmailOtpVerification(body = null, headers = {}, signal = null) {
+    return this.#executeCapability(CAPABILITIES.CONFIRM_EMAIL_OTP_VERIFICATION, {}, body, headers, signal, false);
   }
 
   /**
