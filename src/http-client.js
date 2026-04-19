@@ -34,11 +34,11 @@ export class HttpClient {
    *   wrapped in {@link ClientError} before being re-thrown.
    *
    * @param {string} path - URL path to append to `baseURL`
-   * @param {string} [method="GET"] - HTTP method (`"GET"`, `"POST"`, …)
-   * @param {Record<string, *>} [queryParams={}] - Key/value pairs serialized into the query string
-   * @param {Record<string, *>|null} [body=null] - Request body; will be `JSON.stringify`-ed
-   * @param {Record<string, string>} [headers={}] - Additional request headers (merged over defaults)
-   * @param {AbortSignal|null} [signal=null] - Optional signal for request cancellation
+   * @param {string} [method] - HTTP method (`"GET"`, `"POST"`, …)
+   * @param {Record<string, *>} [queryParams] - Key/value pairs serialized into the query string
+   * @param {Record<string, *>|null} [body] - Request body; will be `JSON.stringify`-ed
+   * @param {Record<string, string>} [headers] - Additional request headers (merged over defaults)
+   * @param {AbortSignal|null} [signal] - Optional signal for request cancellation
    * @returns {Promise<*>} Resolves with the parsed JSON response body
    * @throws {ClientError} On any non-2xx status, network error, or abort
    *

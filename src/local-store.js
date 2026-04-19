@@ -1,5 +1,5 @@
 /**
- * @typedef {Object} AuthData
+ * @typedef {object} AuthData
  * Authentication token payload as returned by the API and persisted to storage.
  * @property {string} access_token - JWT access token
  * @property {string} [refresh_token] - Optional refresh token for silent renewal
@@ -8,7 +8,7 @@
  */
 
 /**
- * @typedef {Object} ProviderData
+ * @typedef {object} ProviderData
  * OAuth2 provider information saved after the user selects a provider.
  * @property {string} name - Provider identifier (e.g. `"google"`, `"github"`)
  * @property {string} [authUrl] - Authorization URL to redirect the user to

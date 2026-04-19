@@ -3,7 +3,7 @@ import { LocalStore } from "./local-store.js";
 import { HttpClient } from "./http-client.js";
 
 /**
- * @typedef {Object} RestinpiecesConfig
+ * @typedef {object} RestinpiecesConfig
  * Configuration object accepted by the {@link Restinpieces} constructor.
  * All fields are optional; omitted fields fall back to {@link Restinpieces.defaultConfig}.
  * @property {string} [baseURL="/"] - Base URL prepended to every API request
@@ -14,7 +14,7 @@ import { HttpClient } from "./http-client.js";
 
 /**
  * @template T
- * @typedef {Object} ApiResponse
+ * @typedef {object} ApiResponse
  * Standard API envelope returned by every server response.
  * @property {T} [data] - Response payload; shape depends on the called endpoint
  * @property {string} [message] - Optional human-readable message from the server
@@ -22,7 +22,7 @@ import { HttpClient } from "./http-client.js";
  */
 
 /**
- * @typedef {Object} StoreHandle
+ * @typedef {object} StoreHandle
  * Internal facade over the storage adapter, scoped to a single domain.
  * @template T
  * @property {function(T): void} save - Persist a value
@@ -30,14 +30,14 @@ import { HttpClient } from "./http-client.js";
  */
 
 /**
- * @typedef {Object} AuthStore
+ * @typedef {object} AuthStore
  * @property {function(import('./local-store.js').AuthData|null): void} save
  * @property {function(): import('./local-store.js').AuthData|null} load
  * @property {function(): boolean} isValid - Returns `true` if the stored token is present and unexpired
  */
 
 /**
- * @typedef {Object} ClientStore
+ * @typedef {object} ClientStore
  * Typed facades for each persisted domain.
  * @property {AuthStore} auth
  * @property {{ save: function(import('./local-store.js').ProviderData|null): void, load: function(): import('./local-store.js').ProviderData|null }} provider
@@ -106,7 +106,7 @@ class Restinpieces {
   };
 
   /**
-   * @param {RestinpiecesConfig} [config={}]
+   * @param {RestinpiecesConfig} [config]
    */
   constructor(config = {}) {
     const mergedConfig = { ...Restinpieces.defaultConfig, ...config };
@@ -211,10 +211,10 @@ class Restinpieces {
    *
    * @param {string} method - HTTP method (e.g. `"GET"`, `"POST"`)
    * @param {string} path - URL path to append to `baseURL`
-   * @param {Record<string, *>} [queryParams={}] - Query string parameters
-   * @param {Record<string, *>|null} [body=null] - Request body (JSON-serialized)
-   * @param {Record<string, string>} [headers={}] - Additional request headers
-   * @param {AbortSignal|null} [signal=null] - Optional cancellation signal
+   * @param {Record<string, *>} [queryParams] - Query string parameters
+   * @param {Record<string, *>|null} [body] - Request body (JSON-serialized)
+   * @param {Record<string, string>} [headers] - Additional request headers
+   * @param {AbortSignal|null} [signal] - Optional cancellation signal
    * @returns {Promise<*>} Parsed JSON response body
    * @throws {ClientError}
    */
@@ -234,7 +234,7 @@ class Restinpieces {
    * @param {Record<string, *>|null} body
    * @param {Record<string, string>} headers
    * @param {AbortSignal|null} signal
-   * @param {boolean} [isAuthRequired=false] - When `true`, injects a Bearer token from storage
+   * @param {boolean} [isAuthRequired] - When `true`, injects a Bearer token from storage
    * @returns {Promise<*>} Parsed JSON response body
    * @throws {ClientError} When the endpoint key is unknown, the token is missing, or the request fails
    */
@@ -323,9 +323,9 @@ class Restinpieces {
    * Registers a new user with email and password.
    * Saves auth data to storage when the server returns an access token.
    *
-   * @param {{ email: string, password: string, [key: string]: * }|null} [body=null] - Registration payload
-   * @param {Record<string, string>} [headers={}]
-   * @param {AbortSignal|null} [signal=null]
+   * @param {{ email: string, password: string, [key: string]: * }|null} [body] - Registration payload
+   * @param {Record<string, string>} [headers]
+   * @param {AbortSignal|null} [signal]
    * @returns {Promise<ApiResponse<import('./local-store.js').AuthData>>}
    * @throws {ClientError} Use `err.formErrors` to retrieve field-level validation errors
    */
@@ -343,9 +343,9 @@ class Restinpieces {
    * Requests a verification email for the currently authenticated user.
    * Requires a valid session (Bearer token in storage).
    *
-   * @param {Record<string, *>|null} [body=null]
-   * @param {Record<string, string>} [headers={}]
-   * @param {AbortSignal|null} [signal=null]
+   * @param {Record<string, *>|null} [body]
+   * @param {Record<string, string>} [headers]
+   * @param {AbortSignal|null} [signal]
    * @returns {Promise<ApiResponse<{}>>}
    * @throws {ClientError}
    */
@@ -356,9 +356,9 @@ class Restinpieces {
   /**
    * Confirms an email address using a token received by email.
    *
-   * @param {{ token: string }|null} [body=null]
-   * @param {Record<string, string>} [headers={}]
-   * @param {AbortSignal|null} [signal=null]
+   * @param {{ token: string }|null} [body]
+   * @param {Record<string, string>} [headers]
+   * @param {AbortSignal|null} [signal]
    * @returns {Promise<ApiResponse<{}>>}
    * @throws {ClientError}
    */
@@ -369,9 +369,9 @@ class Restinpieces {
   /**
    * Confirms an email address change using a token received at the new address.
    *
-   * @param {{ token: string }|null} [body=null]
-   * @param {Record<string, string>} [headers={}]
-   * @param {AbortSignal|null} [signal=null]
+   * @param {{ token: string }|null} [body]
+   * @param {Record<string, string>} [headers]
+   * @param {AbortSignal|null} [signal]
    * @returns {Promise<ApiResponse<{}>>}
    * @throws {ClientError}
    */
@@ -382,9 +382,9 @@ class Restinpieces {
   /**
    * Sends a password-reset email to the given address.
    *
-   * @param {{ email: string }|null} [body=null]
-   * @param {Record<string, string>} [headers={}]
-   * @param {AbortSignal|null} [signal=null]
+   * @param {{ email: string }|null} [body]
+   * @param {Record<string, string>} [headers]
+   * @param {AbortSignal|null} [signal]
    * @returns {Promise<ApiResponse<{}>>}
    * @throws {ClientError}
    */
@@ -396,9 +396,9 @@ class Restinpieces {
    * Requests an email address change for the currently authenticated user.
    * Requires a valid session (Bearer token in storage).
    *
-   * @param {{ newEmail: string }|null} [body=null]
-   * @param {Record<string, string>} [headers={}]
-   * @param {AbortSignal|null} [signal=null]
+   * @param {{ newEmail: string }|null} [body]
+   * @param {Record<string, string>} [headers]
+   * @param {AbortSignal|null} [signal]
    * @returns {Promise<ApiResponse<{}>>}
    * @throws {ClientError}
    */
@@ -410,9 +410,9 @@ class Restinpieces {
    * Authenticates a user with email and password.
    * Saves auth data to storage on success.
    *
-   * @param {{ email: string, password: string }|null} [body=null]
-   * @param {Record<string, string>} [headers={}]
-   * @param {AbortSignal|null} [signal=null]
+   * @param {{ email: string, password: string }|null} [body]
+   * @param {Record<string, string>} [headers]
+   * @param {AbortSignal|null} [signal]
    * @returns {Promise<ApiResponse<import('./local-store.js').AuthData>>}
    * @throws {ClientError} Use `err.formErrors` to retrieve field-level validation errors
    *
@@ -439,9 +439,9 @@ class Restinpieces {
    * Completes an OAuth2 authentication flow using a code/token from the provider.
    * Saves auth data to storage on success.
    *
-   * @param {{ code: string, provider: string, [key: string]: * }|null} [body=null]
-   * @param {Record<string, string>} [headers={}]
-   * @param {AbortSignal|null} [signal=null]
+   * @param {{ code: string, provider: string, [key: string]: * }|null} [body]
+   * @param {Record<string, string>} [headers]
+   * @param {AbortSignal|null} [signal]
    * @returns {Promise<ApiResponse<import('./local-store.js').AuthData>>}
    * @throws {ClientError}
    */

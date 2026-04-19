@@ -1,14 +1,14 @@
 /**
- * @typedef {Object} ErrorDetail
+ * @typedef {object} ErrorDetail
  * A single field-level validation issue returned by the API.
  * @property {string} code - Machine-readable issue type (e.g. `"max_length"`, `"required"`)
  * @property {string} message - Human-readable explanation shown to the user
  * @property {string} [param] - The request parameter that caused the issue (omitted when not field-specific)
- * @property {*} [value] - The problematic input value, when provided by the server
+ * @property {unknown} [value] - The problematic input value, when provided by the server
  */
 
 /**
- * @typedef {Object} ErrorResponse
+ * @typedef {object} ErrorResponse
  * Shape of the JSON body returned by the API on non-2xx responses.
  * @property {number} [status] - HTTP status code mirrored in the body
  * @property {string} [code] - Machine-readable top-level error code (e.g. `"invalid_input"`)
@@ -17,7 +17,7 @@
  */
 
 /**
- * @typedef {Object} ClientErrorData
+ * @typedef {object} ClientErrorData
  * Constructor payload for {@link ClientError}.
  * @property {string} [url] - The URL that caused the error
  * @property {number} [status] - HTTP status code (0 when no response was received)
@@ -29,7 +29,7 @@
 /**
  * Standardized error class for all HTTP client failures.
  *
- * Every error thrown by {@link HttpClient} is an instance of this class, so
+ * Every error thrown by {@link import('./http-client.js').HttpClient} is an instance of this class
  * callers only need a single `catch` branch.  The {@link ClientError#formErrors}
  * getter makes it easy to feed field errors directly into form libraries.
  *
@@ -43,7 +43,7 @@
  *   }
  * }
  *
- * @extends {Error}
+ * @augments {Error}
  */
 export class ClientError extends Error {
   /**

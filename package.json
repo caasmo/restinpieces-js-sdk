@@ -19,6 +19,14 @@
   },
   "scripts": {
     "build": "bash build.sh",
-    "prepublishOnly": "bash build.sh"
+    "lint": "eslint src/",
+    "lint:fix": "eslint src/ --fix",
+    "prepublishOnly": "npm run lint && bash build.sh"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.2.1",
+    "eslint-plugin-jsdoc": "^62.9.0",
+    "globals": "^17.5.0"
   }
 }
