@@ -5,9 +5,12 @@
   "author": "caasmo",
   "license": "MIT",
   "type": "module",
-  "main": "./dist/restinpieces.js",
+  "types": "./dist/index.d.ts",
   "exports": {
-    ".": "./dist/restinpieces.js"
+    ".": {
+      "import": "./dist/restinpieces.js",
+      "types": "./dist/index.d.ts"
+    }
   },
   "files": [
     "dist",
@@ -25,8 +28,10 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "esbuild": "^0.28.0",
     "eslint": "^10.2.1",
     "eslint-plugin-jsdoc": "^62.9.0",
-    "globals": "^17.5.0"
+    "globals": "^17.5.0",
+    "typescript": "^6.0.3"
   }
 }
