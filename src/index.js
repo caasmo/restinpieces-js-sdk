@@ -387,11 +387,17 @@ class Restinpieces {
    * @param {{ otp: string, verification_token: string }|null} [body]
    * @param {Record<string, string>} [headers]
    * @param {AbortSignal|null} [signal]
-   * @returns {Promise<ApiResponse<object>>}
+   * @returns {Promise<ApiResponse<import('./local-store.js').AuthData>>}
    * @throws {ClientError}
    */
   confirmEmailOtpVerification(body = null, headers = {}, signal = null) {
-    return this.#executeCapability(CAPABILITIES.CONFIRM_EMAIL_OTP_VERIFICATION, {}, body, headers, signal, false);
+    return this.#executeCapability(CAPABILITIES.CONFIRM_EMAIL_OTP_VERIFICATION, {}, body, headers, signal, false)
+      .then((response) => {
+        if (response?.data?.access_token) {
+          this.store.auth.save(response.data);
+        }
+        return response;
+      });
   }
 
   /**
