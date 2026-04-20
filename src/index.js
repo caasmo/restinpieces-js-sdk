@@ -384,7 +384,7 @@ class Restinpieces {
   /**
    * Confirms an email address using an OTP received by email.
    *
-   * @param {{ email: string, otp: string }|null} [body]
+   * @param {{ otp: string, verification_token: string }|null} [body]
    * @param {Record<string, string>} [headers]
    * @param {AbortSignal|null} [signal]
    * @returns {Promise<ApiResponse<object>>}
