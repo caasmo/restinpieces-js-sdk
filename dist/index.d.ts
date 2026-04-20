@@ -240,16 +240,16 @@ declare class Restinpieces {
     /**
      * Confirms an email address using an OTP received by email.
      *
-     * @param {{ email: string, otp: string }|null} [body]
+     * @param {{ otp: string, verification_token: string }|null} [body]
      * @param {Record<string, string>} [headers]
      * @param {AbortSignal|null} [signal]
-     * @returns {Promise<ApiResponse<object>>}
+     * @returns {Promise<ApiResponse<import('./local-store.js').AuthData>>}
      * @throws {ClientError}
      */
     confirmEmailOtpVerification(body?: {
-        email: string;
         otp: string;
-    } | null, headers?: Record<string, string>, signal?: AbortSignal | null): Promise<ApiResponse<object>>;
+        verification_token: string;
+    } | null, headers?: Record<string, string>, signal?: AbortSignal | null): Promise<ApiResponse<import("./local-store.js").AuthData>>;
     /**
      * Confirms an email address change using a token received at the new address.
      *
