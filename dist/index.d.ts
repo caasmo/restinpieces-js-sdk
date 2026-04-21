@@ -288,28 +288,32 @@ declare class Restinpieces {
         newEmail: string;
     } | null, headers?: Record<string, string>, signal?: AbortSignal | null): Promise<ApiResponse<object>>;
     /**
-     * Authenticates a user with email and password.
-     * Saves auth data to storage on success.
+     * Composed authentication flow — orchestrates two capability calls.
+     *
+     * CONVENTION BREAK: Unlike all other methods in this class, this method
+     * does not return a raw ApiResponse. It returns a discriminated union
+     * because it covers two distinct outcomes with different data shapes.
+     * This is intentional — the return type reflects the flow, not the wire.
+     *
+     * Flow:
+     *   1. AUTH_WITH_PASSWORD — on success, saves auth data and returns null.
+     *   2. If the server requires OTP, automatically calls
+     *      REQUEST_EMAIL_OTP_VERIFICATION and returns the data needed
+     *      to complete the flow via confirmEmailOtpVerification.
      *
      * @param {{ email: string, password: string }|null} [body]
      * @param {Record<string, string>} [headers]
      * @param {AbortSignal|null} [signal]
-     * @returns {Promise<ApiResponse<import('./local-store.js').AuthData>>}
-     * @throws {ClientError} Use `err.formErrors` to retrieve field-level validation errors
-     *
-     * @example
-     * try {
-     *   await rip.authWithPassword({ email: "alice@example.com", password: "s3cr3t" });
-     * } catch (err) {
-     *   if (err instanceof ClientError) {
-     *     console.log(err.formErrors); // { email: ["Invalid credentials"] }
-     *   }
-     * }
+     * @returns {Promise<null | { email: string, verificationToken: string }>}
+     * @throws {ClientError} On credential failure, or when the subsequent OTP request fails.
      */
     authWithPassword(body?: {
         email: string;
         password: string;
-    } | null, headers?: Record<string, string>, signal?: AbortSignal | null): Promise<ApiResponse<import("./local-store.js").AuthData>>;
+    } | null, headers?: Record<string, string>, signal?: AbortSignal | null): Promise<null | {
+        email: string;
+        verificationToken: string;
+    }>;
     /**
      * Completes an OAuth2 authentication flow using a code/token from the provider.
      * Saves auth data to storage on success.

@@ -440,34 +440,44 @@ class Restinpieces {
     return this.#executeCapability(CAPABILITIES.REQUEST_EMAIL_CHANGE, {}, body, headers, signal, true);
   }
 
-  /**
-   * Authenticates a user with email and password.
-   * Saves auth data to storage on success.
-   *
-   * @param {{ email: string, password: string }|null} [body]
-   * @param {Record<string, string>} [headers]
-   * @param {AbortSignal|null} [signal]
-   * @returns {Promise<ApiResponse<import('./local-store.js').AuthData>>}
-   * @throws {ClientError} Use `err.formErrors` to retrieve field-level validation errors
-   *
-   * @example
-   * try {
-   *   await rip.authWithPassword({ email: "alice@example.com", password: "s3cr3t" });
-   * } catch (err) {
-   *   if (err instanceof ClientError) {
-   *     console.log(err.formErrors); // { email: ["Invalid credentials"] }
-   *   }
-   * }
-   */
-  authWithPassword(body = null, headers = {}, signal = null) {
-    return this.#executeCapability(CAPABILITIES.AUTH_WITH_PASSWORD, {}, body, headers, signal, false)
-      .then((response) => {
-        if (response?.data?.access_token) {
-          this.store.auth.save(response.data);
-        }
-        return response;
-      });
+/**
+ * Composed authentication flow — orchestrates two capability calls.
+ *
+ * CONVENTION BREAK: Unlike all other methods in this class, this method
+ * does not return a raw ApiResponse. It returns a discriminated union
+ * because it covers two distinct outcomes with different data shapes.
+ * This is intentional — the return type reflects the flow, not the wire.
+ *
+ * Flow:
+ *   1. AUTH_WITH_PASSWORD — on success, saves auth data and returns null.
+ *   2. If the server requires OTP, automatically calls
+ *      REQUEST_EMAIL_OTP_VERIFICATION and returns the data needed
+ *      to complete the flow via confirmEmailOtpVerification.
+ *
+ * @param {{ email: string, password: string }|null} [body]
+ * @param {Record<string, string>} [headers]
+ * @param {AbortSignal|null} [signal]
+ * @returns {Promise<null | { email: string, verificationToken: string }>}
+ * @throws {ClientError} On credential failure, or when the subsequent OTP request fails.
+ */
+async authWithPassword(body = null, headers = {}, signal = null) {
+  try {
+    const response = await this.#executeCapability(CAPABILITIES.AUTH_WITH_PASSWORD, {}, { identity: body.email, password: body.password }, headers, signal, false);
+    if (response?.data?.access_token) {
+      this.store.auth.save(response.data);
+    }
+    return null;
+  } catch (err) {
+    if (err instanceof ClientError && err.code === "err_required_email_otp_verification") {
+      const otpResponse = await this.#executeCapability(CAPABILITIES.REQUEST_EMAIL_OTP_VERIFICATION, {}, { email: body.email }, headers, signal, false);
+      return {
+        email: body.email,
+        verificationToken: otpResponse.data.verification_token,
+      };
+    }
+    throw err;
   }
+}
 
   /**
    * Completes an OAuth2 authentication flow using a code/token from the provider.
