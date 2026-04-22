@@ -188,20 +188,23 @@ declare class Restinpieces {
         authUrl: string;
     }>>>;
     /**
-     * Registers a new user with email and password.
-     * Saves auth data to storage when the server returns an access token.
+     * Registers a new user with email and password and automatically requests
+     * an email OTP verification.
      *
      * @param {{ email: string, password: string, [key: string]: any }|null} [body] - Registration payload
      * @param {Record<string, string>} [headers]
      * @param {AbortSignal|null} [signal]
-     * @returns {Promise<ApiResponse<import('./local-store.js').AuthData>>}
+     * @returns {Promise<{ email: string, verificationToken: string }>}
      * @throws {ClientError} Use `err.formErrors` to retrieve field-level validation errors
      */
     registerWithPassword(body?: {
         email: string;
         password: string;
         [key: string]: any;
-    } | null, headers?: Record<string, string>, signal?: AbortSignal | null): Promise<ApiResponse<import("./local-store.js").AuthData>>;
+    } | null, headers?: Record<string, string>, signal?: AbortSignal | null): Promise<{
+        email: string;
+        verificationToken: string;
+    }>;
     /**
      * Requests a verification email for the currently authenticated user.
      * Requires a valid session (Bearer token in storage).
