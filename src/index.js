@@ -322,18 +322,33 @@ class Restinpieces {
   }
 
   /**
-   * Registers a new user with email and password and automatically requests
-   * an email OTP verification.
+   * Composed registration flow — orchestrates two capability calls.
    *
-   * @param {{ email: string, password: string, [key: string]: any }|null} [body] - Registration payload
+   * Flow:
+   *   1. REGISTER_WITH_PASSWORD — creates the user account.
+   *   2. REQUEST_EMAIL_OTP_VERIFICATION — automatically triggered.
+   *
+   * Returns the data needed to complete the flow via confirmEmailOtpVerification.
+   * This method NEVER saves to localStorage.
+   *
+   * @param {{ email: string, password: string, password_confirm: string }|null} [body]
    * @param {Record<string, string>} [headers]
    * @param {AbortSignal|null} [signal]
    * @returns {Promise<{ email: string, verificationToken: string }>}
-   * @throws {ClientError} Use `err.formErrors` to retrieve field-level validation errors
+   * @throws {ClientError}
    */
   async registerWithPassword(body = null, headers = {}, signal = null) {
     await this.#executeCapability(
-      CAPABILITIES.REGISTER_WITH_PASSWORD, {}, body, headers, signal, false
+      CAPABILITIES.REGISTER_WITH_PASSWORD,
+      {},
+      {
+        identity: body.email,
+        password: body.password,
+        password_confirm: body.password_confirm,
+      },
+      headers,
+      signal,
+      false
     );
     const otpResponse = await this.#executeCapability(
       CAPABILITIES.REQUEST_EMAIL_OTP_VERIFICATION, {}, { email: body.email }, headers, signal, false
