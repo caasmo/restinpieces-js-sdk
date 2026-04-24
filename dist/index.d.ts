@@ -237,7 +237,7 @@ declare class Restinpieces {
     /**
      * Requests a verification OTP for the given email address.
      *
-     * @param {{ email: string }|null} [body]
+     * @param {{ email: string, password: string }|null} [body]
      * @param {Record<string, string>} [headers]
      * @param {AbortSignal|null} [signal]
      * @returns {Promise<ApiResponse<object>>}
@@ -245,6 +245,7 @@ declare class Restinpieces {
      */
     requestEmailOtpVerification(body?: {
         email: string;
+        password: string;
     } | null, headers?: Record<string, string>, signal?: AbortSignal | null): Promise<ApiResponse<object>>;
     /**
      * Confirms an email address using an OTP received by email.

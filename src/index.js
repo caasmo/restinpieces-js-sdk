@@ -351,7 +351,7 @@ class Restinpieces {
       false
     );
     const otpResponse = await this.#executeCapability(
-      CAPABILITIES.REQUEST_EMAIL_OTP_VERIFICATION, {}, { email: body.email }, headers, signal, false
+      CAPABILITIES.REQUEST_EMAIL_OTP_VERIFICATION, {}, { email: body.email, password: body.password }, headers, signal, false
     );
     return { email: body.email, verificationToken: otpResponse.data.verification_token };
   }
@@ -386,7 +386,7 @@ class Restinpieces {
   /**
    * Requests a verification OTP for the given email address.
    *
-   * @param {{ email: string }|null} [body]
+   * @param {{ email: string, password: string }|null} [body]
    * @param {Record<string, string>} [headers]
    * @param {AbortSignal|null} [signal]
    * @returns {Promise<ApiResponse<object>>}
@@ -484,7 +484,7 @@ async authWithPassword(body = null, headers = {}, signal = null) {
     return null;
   } catch (err) {
     if (err instanceof ClientError && err.code === "err_required_email_otp_verification") {
-      const otpResponse = await this.#executeCapability(CAPABILITIES.REQUEST_EMAIL_OTP_VERIFICATION, {}, { email: body.email }, headers, signal, false);
+      const otpResponse = await this.#executeCapability(CAPABILITIES.REQUEST_EMAIL_OTP_VERIFICATION, {}, { email: body.email, password: body.password }, headers, signal, false);
       return {
         email: body.email,
         verificationToken: otpResponse.data.verification_token,
