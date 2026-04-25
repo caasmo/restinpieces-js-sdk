@@ -42,6 +42,7 @@ import { HttpClient } from "./http-client.js";
  * @property {AuthStore} auth - Authentication storage facade
  * @property {{ save: function(import('./local-store.js').ProviderData|null): void, load: function(): import('./local-store.js').ProviderData|null }} provider - OAuth2 provider storage facade
  * @property {{ save: function(import('./local-store.js').EndpointMap|null): void, load: function(): import('./local-store.js').EndpointMap|null }} endpoints - Endpoint map storage facade
+ * @property {{ save: function(string|null): void, load: function(): string|null }} endpointsHash - Endpoints hash storage facade
  */
 
 /**
@@ -172,6 +173,10 @@ class Restinpieces {
         save: (data) => this.storage.saveEndpoints(data),
         load: () => this.storage.loadEndpoints(),
       },
+      endpointsHash: {
+        save: (data) => this.storage.saveEndpointsHash(data),
+        load: () => this.storage.loadEndpointsHash(),
+      },
     };
   }
 
@@ -200,7 +205,7 @@ class Restinpieces {
           }
           this.store.endpoints.save(response.data.endpoints);
           this._endpointsHash = response.data.hash || "";
-          this.storage.saveEndpointsHash(this._endpointsHash);
+          this.store.endpointsHash.save(this._endpointsHash);
           this.endpointsPromise = null;
           return response.data.endpoints;
         })
@@ -295,7 +300,7 @@ class Restinpieces {
         this._endpointsStale = true;
         this.store.endpoints.save(null);
         this._endpointsHash = "";
-        this.storage.saveEndpointsHash(null);
+        this.store.endpointsHash.save(null);
       }
       throw error;
     }

@@ -79,6 +79,13 @@ export type ClientStore = {
         save: (arg0: import("./local-store.js").EndpointMap | null) => void;
         load: () => import("./local-store.js").EndpointMap | null;
     };
+    /**
+     * - Endpoints hash storage facade
+     */
+    endpointsHash: {
+        save: (arg0: string | null) => void;
+        load: () => string | null;
+    };
 };
 import { ClientError } from "./client-error.js";
 /**
