@@ -149,11 +149,17 @@ class Restinpieces {
     /**
      * Cached endpoints hash from the server's endpoint discovery response.
      * Sent on every capability request via `X-Restinpieces-Endpoints-Hash`.
-     * When the server detects a mismatch, it returns `err_endpoints_hash_mismatch`,
-     * triggering a cache invalidation cycle.
-     * @type {string}
+     *
+     * BOOTSTRAP LOGIC:
+     * - `null`: First boot or upgraded legacy client (no hash in storage).
+     *          Triggers a discovery call to sync the hash.
+     * - `""`:   Synced with a server that does not provide hashes.
+     *          Prevents infinite discovery loops on legacy backends.
+     * - string: Valid hash used for cache invalidation.
+     *
+     * @type {string|null}
      */
-    this._endpointsHash = this.storage.loadEndpointsHash() || "";
+    this._endpointsHash = this.storage.loadEndpointsHash();
 
     /**
      * Typed, domain-scoped facades over the storage adapter.
@@ -259,7 +265,7 @@ class Restinpieces {
   async #executeCapability(endpointKey, queryParams, body, headers, signal, isAuthRequired = false) {
     let endpoints = this.store.endpoints.load();
 
-    if (this._endpointsStale || !endpoints || !endpoints[endpointKey]) {
+    if (this._endpointsStale || !endpoints || this._endpointsHash === null || !endpoints[endpointKey]) {
       endpoints = await this._fetchEndpoints();
       this._endpointsStale = false;
     }
