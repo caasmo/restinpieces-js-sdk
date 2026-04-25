@@ -38,12 +38,13 @@ export class LocalStore {
   /**
    * `localStorage` key registry.
    * Changing these values will invalidate any data written by a previous version.
-   * @type {{ auth: string, provider: string, endpoints: string }}
+   * @type {{ auth: string, provider: string, endpoints: string, endpointsHash: string }}
    */
   static #keys = {
     auth: "_rip_auth",
     provider: "_rip_provider",
     endpoints: "_rip_endpoints",
+    endpointsHash: "_rip_endpoints_hash",
   };
 
   // ---------------------------------------------------------------------------
@@ -54,7 +55,7 @@ export class LocalStore {
    * Reads and JSON-parses a value from `localStorage`.
    *
    * @template T
-   * @param {"auth" | "provider" | "endpoints"} key - Domain key (`"auth"`, `"provider"`, `"endpoints"`)
+   * @param {"auth" | "provider" | "endpoints" | "endpointsHash"} key - Domain key (`"auth"`, `"provider"`, `"endpoints"`, `"endpointsHash"`)
    * @returns {T|null} Parsed value, or `null` if the key is absent
    * @throws {Error} When `localStorage` access or JSON parsing fails
    */
@@ -72,7 +73,7 @@ export class LocalStore {
    * JSON-serializes `value` and writes it to `localStorage`.
    *
    * @template T
-   * @param {"auth" | "provider" | "endpoints"} key - Domain key
+   * @param {"auth" | "provider" | "endpoints" | "endpointsHash"} key - Domain key
    * @param {T} value - Value to store; must be JSON-serializable
    * @returns {void}
    * @throws {Error} When `localStorage` is unavailable or the quota is exceeded
@@ -169,5 +170,27 @@ export class LocalStore {
    */
   saveEndpoints(value) {
     this.#set("endpoints", value);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Endpoints Hash
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Loads the cached endpoints hash.
+   * @returns {string|null}
+   */
+  loadEndpointsHash() {
+    return this.#get("endpointsHash");
+  }
+
+  /**
+   * Persists the endpoints hash received from the server.
+   * Pass `null` to clear.
+   * @param {string|null} value
+   * @returns {void}
+   */
+  saveEndpointsHash(value) {
+    this.#set("endpointsHash", value);
   }
 }

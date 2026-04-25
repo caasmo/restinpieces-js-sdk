@@ -138,6 +138,14 @@ declare class Restinpieces {
      */
     _endpointsStale: boolean;
     /**
+     * Cached endpoints hash from the server's endpoint discovery response.
+     * Sent on every capability request via `X-Restinpieces-Endpoints-Hash`.
+     * When the server detects a mismatch, it returns `err_endpoints_hash_mismatch`,
+     * triggering a cache invalidation cycle.
+     * @type {string}
+     */
+    _endpointsHash: string;
+    /**
      * Typed, domain-scoped facades over the storage adapter.
      * @type {ClientStore}
      */

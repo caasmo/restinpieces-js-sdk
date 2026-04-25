@@ -51,11 +51,11 @@ import { HttpClient } from "./http-client.js";
  * lets the SDK provide consistent auth workflows even when underlying API routes
  * are changed or versioned on the server.
  *
- * Protocol features:
- * - **Header injection** — the capability key is sent in `X-Restinpieces-Capability`.
- * - **Cache invalidation** — if the server detects a path/capability mismatch it
- *   returns a `capability_mismatch` error, signalling the SDK to mark the cache
- *   as stale and reload the endpoint map on the next request.
+ * Cache invalidation — the SDK sends a `X-Restinpieces-Endpoints-Hash` header
+ * on every capability request. If the server detects a hash mismatch (routes
+ * changed via config reload), it returns `err_endpoints_hash_mismatch`,
+ * signalling the SDK to mark the cache as stale and reload the endpoint map
+ * on the next request.
  *
  * @type {Record<string, string>}
  */
@@ -146,6 +146,15 @@ class Restinpieces {
     this._endpointsStale = false;
 
     /**
+     * Cached endpoints hash from the server's endpoint discovery response.
+     * Sent on every capability request via `X-Restinpieces-Endpoints-Hash`.
+     * When the server detects a mismatch, it returns `err_endpoints_hash_mismatch`,
+     * triggering a cache invalidation cycle.
+     * @type {string}
+     */
+    this._endpointsHash = this.storage.loadEndpointsHash() || "";
+
+    /**
      * Typed, domain-scoped facades over the storage adapter.
      * @type {ClientStore}
      */
@@ -186,12 +195,14 @@ class Restinpieces {
       this.endpointsPromise = this.httpClient
         .requestJson(endpointPath, method)
         .then((response) => {
-          if (!response?.data) {
+          if (!response?.data?.endpoints) {
             throw new ClientError({ response: { message: "Empty endpoints list received" } });
           }
-          this.store.endpoints.save(response.data);
+          this.store.endpoints.save(response.data.endpoints);
+          this._endpointsHash = response.data.hash || "";
+          this.storage.saveEndpointsHash(this._endpointsHash);
           this.endpointsPromise = null;
-          return response.data;
+          return response.data.endpoints;
         })
         .catch((error) => {
           this.endpointsPromise = null;
@@ -226,10 +237,10 @@ class Restinpieces {
 
   /**
    * Resolves a capability key to a `"METHOD /path"` string, injects the
-   * required headers, and executes the request.
+   * endpoints hash header, and executes the request.
    *
-   * On a `capability_mismatch` error the cache is invalidated so the next
-   * call transparently re-discovers the correct path.
+   * On an `err_endpoints_hash_mismatch` error the cache is invalidated so
+   * the next call transparently re-discovers the correct path.
    *
    * @param {string} endpointKey - One of the values in {@link CAPABILITIES}
    * @param {Record<string, any>} queryParams
@@ -261,10 +272,10 @@ class Restinpieces {
     const [method, path] = methodAndPath.split(" ");
 
     /** @type {Record<string, string>} */
-    const requestHeaders = {
-      ...headers,
-      "X-Restinpieces-Capability": endpointKey,
-    };
+    const requestHeaders = { ...headers };
+    if (this._endpointsHash) {
+      requestHeaders["X-Restinpieces-Endpoints-Hash"] = this._endpointsHash;
+    }
 
     if (isAuthRequired) {
       const authData = this.store.auth.load() || {};
@@ -280,9 +291,11 @@ class Restinpieces {
     try {
       return await this.request(method, path, queryParams, body, requestHeaders, signal);
     } catch (error) {
-      if (error instanceof ClientError && error.code === "capability_mismatch") {
+      if (error instanceof ClientError && error.code === "err_endpoints_hash_mismatch") {
         this._endpointsStale = true;
         this.store.endpoints.save(null);
+        this._endpointsHash = "";
+        this.storage.saveEndpointsHash(null);
       }
       throw error;
     }

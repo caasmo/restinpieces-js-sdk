@@ -35,12 +35,13 @@ export class LocalStore {
     /**
      * `localStorage` key registry.
      * Changing these values will invalidate any data written by a previous version.
-     * @type {{ auth: string, provider: string, endpoints: string }}
+     * @type {{ auth: string, provider: string, endpoints: string, endpointsHash: string }}
      */
     static #keys: {
         auth: string;
         provider: string;
         endpoints: string;
+        endpointsHash: string;
     };
     /**
      * Loads the persisted authentication data.
@@ -87,6 +88,18 @@ export class LocalStore {
      * @returns {void}
      */
     saveEndpoints(value: EndpointMap | null): void;
+    /**
+     * Loads the cached endpoints hash.
+     * @returns {string|null}
+     */
+    loadEndpointsHash(): string | null;
+    /**
+     * Persists the endpoints hash received from the server.
+     * Pass `null` to clear.
+     * @param {string|null} value
+     * @returns {void}
+     */
+    saveEndpointsHash(value: string | null): void;
     #private;
 }
 /**
