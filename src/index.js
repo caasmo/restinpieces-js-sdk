@@ -73,6 +73,9 @@ const CAPABILITIES = {
   AUTH_WITH_OAUTH2: "auth_with_oauth2",
   REQUEST_EMAIL_OTP_VERIFICATION: "request_email_otp_verification",
   CONFIRM_EMAIL_OTP_VERIFICATION: "confirm_email_otp_verification",
+  REQUEST_PASSWORD_RESET_OTP: "request_password_reset_otp",
+  VERIFY_PASSWORD_RESET_OTP: "verify_password_reset_otp",
+  CONFIRM_PASSWORD_RESET_OTP: "confirm_password_reset_otp",
 };
 
 /**
@@ -463,6 +466,52 @@ class Restinpieces {
    */
   requestPasswordReset(body = null, headers = {}, signal = null) {
     return this.#executeCapability(CAPABILITIES.REQUEST_PASSWORD_RESET, {}, body, headers, signal, false);
+  }
+
+  /**
+   * Requests a password reset OTP for the given email address.
+   *
+   * @param {{ email: string }|null} [body]
+   * @param {Record<string, string>} [headers]
+   * @param {AbortSignal|null} [signal]
+   * @returns {Promise<ApiResponse<object>>}
+   * @throws {ClientError}
+   */
+  requestPasswordResetOtp(body = null, headers = {}, signal = null) {
+    return this.#executeCapability(CAPABILITIES.REQUEST_PASSWORD_RESET_OTP, {}, body, headers, signal, false);
+  }
+
+  /**
+   * Verifies the password reset OTP and returns a grant token.
+   *
+   * @param {{ otp: string, verification_token: string }|null} [body]
+   * @param {Record<string, string>} [headers]
+   * @param {AbortSignal|null} [signal]
+   * @returns {Promise<ApiResponse<{ token: string }>>}
+   * @throws {ClientError}
+   */
+  verifyPasswordResetOtp(body = null, headers = {}, signal = null) {
+    return this.#executeCapability(CAPABILITIES.VERIFY_PASSWORD_RESET_OTP, {}, body, headers, signal, false);
+  }
+
+  /**
+   * Confirms the new password using the grant token.
+   * Saves auth data to storage on success.
+   *
+   * @param {{ token: string, password: string, password_confirm: string }|null} [body]
+   * @param {Record<string, string>} [headers]
+   * @param {AbortSignal|null} [signal]
+   * @returns {Promise<ApiResponse<import('./local-store.js').AuthData>>}
+   * @throws {ClientError}
+   */
+  confirmPasswordResetOtp(body = null, headers = {}, signal = null) {
+    return this.#executeCapability(CAPABILITIES.CONFIRM_PASSWORD_RESET_OTP, {}, body, headers, signal, false)
+      .then((response) => {
+        if (response?.data?.access_token) {
+          this.store.auth.save(response.data);
+        }
+        return response;
+      });
   }
 
   /**

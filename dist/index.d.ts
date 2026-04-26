@@ -306,6 +306,48 @@ declare class Restinpieces {
         email: string;
     } | null, headers?: Record<string, string>, signal?: AbortSignal | null): Promise<ApiResponse<object>>;
     /**
+     * Requests a password reset OTP for the given email address.
+     *
+     * @param {{ email: string }|null} [body]
+     * @param {Record<string, string>} [headers]
+     * @param {AbortSignal|null} [signal]
+     * @returns {Promise<ApiResponse<object>>}
+     * @throws {ClientError}
+     */
+    requestPasswordResetOtp(body?: {
+        email: string;
+    } | null, headers?: Record<string, string>, signal?: AbortSignal | null): Promise<ApiResponse<object>>;
+    /**
+     * Verifies the password reset OTP and returns a grant token.
+     *
+     * @param {{ otp: string, verification_token: string }|null} [body]
+     * @param {Record<string, string>} [headers]
+     * @param {AbortSignal|null} [signal]
+     * @returns {Promise<ApiResponse<{ token: string }>>}
+     * @throws {ClientError}
+     */
+    verifyPasswordResetOtp(body?: {
+        otp: string;
+        verification_token: string;
+    } | null, headers?: Record<string, string>, signal?: AbortSignal | null): Promise<ApiResponse<{
+        token: string;
+    }>>;
+    /**
+     * Confirms the new password using the grant token.
+     * Saves auth data to storage on success.
+     *
+     * @param {{ token: string, password: string, password_confirm: string }|null} [body]
+     * @param {Record<string, string>} [headers]
+     * @param {AbortSignal|null} [signal]
+     * @returns {Promise<ApiResponse<import('./local-store.js').AuthData>>}
+     * @throws {ClientError}
+     */
+    confirmPasswordResetOtp(body?: {
+        token: string;
+        password: string;
+        password_confirm: string;
+    } | null, headers?: Record<string, string>, signal?: AbortSignal | null): Promise<ApiResponse<import("./local-store.js").AuthData>>;
+    /**
      * Requests an email address change for the currently authenticated user.
      * Requires a valid session (Bearer token in storage).
      *
