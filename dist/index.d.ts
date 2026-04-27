@@ -213,9 +213,9 @@ declare class Restinpieces {
      *
      * Flow:
      *   1. REGISTER_WITH_PASSWORD — creates the user account.
-     *   2. REQUEST_EMAIL_OTP_VERIFICATION — automatically triggered.
+     *   2. REQUEST_EMAIL_VERIFICATION_OTP — automatically triggered.
      *
-     * Returns the data needed to complete the flow via confirmEmailOtpVerification.
+     * Returns the data needed to complete the flow via confirmEmailVerificationOtp.
      * This method NEVER saves to localStorage.
      *
      * @param {{ email: string, password: string, password_confirm: string }|null} [body]
@@ -233,29 +233,6 @@ declare class Restinpieces {
         verificationToken: string;
     }>;
     /**
-     * Requests a verification email for the currently authenticated user.
-     * Requires a valid session (Bearer token in storage).
-     *
-     * @param {Record<string, any>|null} [body]
-     * @param {Record<string, string>} [headers]
-     * @param {AbortSignal|null} [signal]
-     * @returns {Promise<ApiResponse<object>>}
-     * @throws {ClientError}
-     */
-    requestEmailVerification(body?: Record<string, any> | null, headers?: Record<string, string>, signal?: AbortSignal | null): Promise<ApiResponse<object>>;
-    /**
-     * Confirms an email address using a token received by email.
-     *
-     * @param {{ token: string }|null} [body]
-     * @param {Record<string, string>} [headers]
-     * @param {AbortSignal|null} [signal]
-     * @returns {Promise<ApiResponse<object>>}
-     * @throws {ClientError}
-     */
-    confirmEmailVerification(body?: {
-        token: string;
-    } | null, headers?: Record<string, string>, signal?: AbortSignal | null): Promise<ApiResponse<object>>;
-    /**
      * Requests a verification OTP for the given email address.
      *
      * @param {{ email: string, password: string }|null} [body]
@@ -264,7 +241,7 @@ declare class Restinpieces {
      * @returns {Promise<ApiResponse<object>>}
      * @throws {ClientError}
      */
-    requestEmailOtpVerification(body?: {
+    requestEmailVerificationOtp(body?: {
         email: string;
         password: string;
     } | null, headers?: Record<string, string>, signal?: AbortSignal | null): Promise<ApiResponse<object>>;
@@ -277,7 +254,7 @@ declare class Restinpieces {
      * @returns {Promise<ApiResponse<import('./local-store.js').AuthData>>}
      * @throws {ClientError}
      */
-    confirmEmailOtpVerification(body?: {
+    confirmEmailVerificationOtp(body?: {
         otp: string;
         verification_token: string;
     } | null, headers?: Record<string, string>, signal?: AbortSignal | null): Promise<ApiResponse<import("./local-store.js").AuthData>>;
@@ -306,47 +283,6 @@ declare class Restinpieces {
         email: string;
     } | null, headers?: Record<string, string>, signal?: AbortSignal | null): Promise<ApiResponse<object>>;
     /**
-     * Requests a password reset OTP for the given email address.
-     *
-     * @param {{ email: string }|null} [body]
-     * @param {Record<string, string>} [headers]
-     * @param {AbortSignal|null} [signal]
-     * @returns {Promise<ApiResponse<object>>}
-     * @throws {ClientError}
-     */
-    requestPasswordResetOtp(body?: {
-        email: string;
-    } | null, headers?: Record<string, string>, signal?: AbortSignal | null): Promise<ApiResponse<object>>;
-    /**
-     * Verifies the password reset OTP and returns a grant token.
-     *
-     * @param {{ otp: string, verification_token: string }|null} [body]
-     * @param {Record<string, string>} [headers]
-     * @param {AbortSignal|null} [signal]
-     * @returns {Promise<ApiResponse<{ token: string }>>}
-     * @throws {ClientError}
-     */
-    verifyPasswordResetOtp(body?: {
-        otp: string;
-        verification_token: string;
-    } | null, headers?: Record<string, string>, signal?: AbortSignal | null): Promise<ApiResponse<{
-        token: string;
-    }>>;
-    /**
-     * Confirms the new password using the grant token.
-     *
-     * @param {{ token: string, password: string, password_confirm: string }|null} [body]
-     * @param {Record<string, string>} [headers]
-     * @param {AbortSignal|null} [signal]
-     * @returns {Promise<ApiResponse<object>>}
-     * @throws {ClientError}
-     */
-    confirmPasswordResetOtp(body?: {
-        token: string;
-        password: string;
-        password_confirm: string;
-    } | null, headers?: Record<string, string>, signal?: AbortSignal | null): Promise<ApiResponse<object>>;
-    /**
      * Requests an email address change for the currently authenticated user.
      * Requires a valid session (Bearer token in storage).
      *
@@ -370,8 +306,8 @@ declare class Restinpieces {
      * Flow:
      *   1. AUTH_WITH_PASSWORD — on success, saves auth data and returns null.
      *   2. If the server requires OTP, automatically calls
-     *      REQUEST_EMAIL_OTP_VERIFICATION and returns the data needed
-     *      to complete the flow via confirmEmailOtpVerification.
+     *      REQUEST_EMAIL_VERIFICATION_OTP and returns the data needed
+     *      to complete the flow via confirmEmailVerificationOtp.
      *
      * @param {{ email: string, password: string }|null} [body]
      * @param {Record<string, string>} [headers]

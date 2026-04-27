@@ -64,18 +64,13 @@ const CAPABILITIES = {
   REFRESH_AUTH: "refresh_auth",
   LIST_OAUTH2_PROVIDERS: "list_oauth2_providers",
   REGISTER_WITH_PASSWORD: "register_with_password",
-  REQUEST_EMAIL_VERIFICATION: "request_email_verification",
-  CONFIRM_EMAIL_VERIFICATION: "confirm_email_verification",
   CONFIRM_EMAIL_CHANGE: "confirm_email_change",
   REQUEST_PASSWORD_RESET: "request_password_reset",
   REQUEST_EMAIL_CHANGE: "request_email_change",
   AUTH_WITH_PASSWORD: "auth_with_password",
   AUTH_WITH_OAUTH2: "auth_with_oauth2",
-  REQUEST_EMAIL_OTP_VERIFICATION: "request_email_otp_verification",
-  CONFIRM_EMAIL_OTP_VERIFICATION: "confirm_email_otp_verification",
-  REQUEST_PASSWORD_RESET_OTP: "request_password_reset_otp",
-  VERIFY_PASSWORD_RESET_OTP: "verify_password_reset_otp",
-  CONFIRM_PASSWORD_RESET_OTP: "confirm_password_reset_otp",
+  REQUEST_EMAIL_VERIFICATION_OTP: "request_email_verification_otp",
+  CONFIRM_EMAIL_VERIFICATION_OTP: "confirm_email_verification_otp",
 };
 
 /**
@@ -353,9 +348,9 @@ class Restinpieces {
    *
    * Flow:
    *   1. REGISTER_WITH_PASSWORD — creates the user account.
-   *   2. REQUEST_EMAIL_OTP_VERIFICATION — automatically triggered.
+   *   2. REQUEST_EMAIL_VERIFICATION_OTP — automatically triggered.
    *
-   * Returns the data needed to complete the flow via confirmEmailOtpVerification.
+   * Returns the data needed to complete the flow via confirmEmailVerificationOtp.
    * This method NEVER saves to localStorage.
    *
    * @param {{ email: string, password: string, password_confirm: string }|null} [body]
@@ -378,36 +373,9 @@ class Restinpieces {
       false
     );
     const otpResponse = await this.#executeCapability(
-      CAPABILITIES.REQUEST_EMAIL_OTP_VERIFICATION, {}, { email: body.email, password: body.password }, headers, signal, false
+      CAPABILITIES.REQUEST_EMAIL_VERIFICATION_OTP, {}, { email: body.email, password: body.password }, headers, signal, false
     );
     return { email: body.email, verificationToken: otpResponse.data.verification_token };
-  }
-
-  /**
-   * Requests a verification email for the currently authenticated user.
-   * Requires a valid session (Bearer token in storage).
-   *
-   * @param {Record<string, any>|null} [body]
-   * @param {Record<string, string>} [headers]
-   * @param {AbortSignal|null} [signal]
-   * @returns {Promise<ApiResponse<object>>}
-   * @throws {ClientError}
-   */
-  requestEmailVerification(body = null, headers = {}, signal = null) {
-    return this.#executeCapability(CAPABILITIES.REQUEST_EMAIL_VERIFICATION, {}, body, headers, signal, true);
-  }
-
-  /**
-   * Confirms an email address using a token received by email.
-   *
-   * @param {{ token: string }|null} [body]
-   * @param {Record<string, string>} [headers]
-   * @param {AbortSignal|null} [signal]
-   * @returns {Promise<ApiResponse<object>>}
-   * @throws {ClientError}
-   */
-  confirmEmailVerification(body = null, headers = {}, signal = null) {
-    return this.#executeCapability(CAPABILITIES.CONFIRM_EMAIL_VERIFICATION, {}, body, headers, signal, false);
   }
 
   /**
@@ -419,8 +387,8 @@ class Restinpieces {
    * @returns {Promise<ApiResponse<object>>}
    * @throws {ClientError}
    */
-  requestEmailOtpVerification(body = null, headers = {}, signal = null) {
-    return this.#executeCapability(CAPABILITIES.REQUEST_EMAIL_OTP_VERIFICATION, {}, body, headers, signal, false);
+  requestEmailVerificationOtp(body = null, headers = {}, signal = null) {
+    return this.#executeCapability(CAPABILITIES.REQUEST_EMAIL_VERIFICATION_OTP, {}, body, headers, signal, false);
   }
 
   /**
@@ -432,8 +400,8 @@ class Restinpieces {
    * @returns {Promise<ApiResponse<import('./local-store.js').AuthData>>}
    * @throws {ClientError}
    */
-  confirmEmailOtpVerification(body = null, headers = {}, signal = null) {
-    return this.#executeCapability(CAPABILITIES.CONFIRM_EMAIL_OTP_VERIFICATION, {}, body, headers, signal, false)
+  confirmEmailVerificationOtp(body = null, headers = {}, signal = null) {
+    return this.#executeCapability(CAPABILITIES.CONFIRM_EMAIL_VERIFICATION_OTP, {}, body, headers, signal, false)
       .then((response) => {
         if (response?.data?.access_token) {
           this.store.auth.save(response.data);
@@ -469,45 +437,6 @@ class Restinpieces {
   }
 
   /**
-   * Requests a password reset OTP for the given email address.
-   *
-   * @param {{ email: string }|null} [body]
-   * @param {Record<string, string>} [headers]
-   * @param {AbortSignal|null} [signal]
-   * @returns {Promise<ApiResponse<object>>}
-   * @throws {ClientError}
-   */
-  requestPasswordResetOtp(body = null, headers = {}, signal = null) {
-    return this.#executeCapability(CAPABILITIES.REQUEST_PASSWORD_RESET_OTP, {}, body, headers, signal, false);
-  }
-
-  /**
-   * Verifies the password reset OTP and returns a grant token.
-   *
-   * @param {{ otp: string, verification_token: string }|null} [body]
-   * @param {Record<string, string>} [headers]
-   * @param {AbortSignal|null} [signal]
-   * @returns {Promise<ApiResponse<{ token: string }>>}
-   * @throws {ClientError}
-   */
-  verifyPasswordResetOtp(body = null, headers = {}, signal = null) {
-    return this.#executeCapability(CAPABILITIES.VERIFY_PASSWORD_RESET_OTP, {}, body, headers, signal, false);
-  }
-
-  /**
-   * Confirms the new password using the grant token.
-   *
-   * @param {{ token: string, password: string, password_confirm: string }|null} [body]
-   * @param {Record<string, string>} [headers]
-   * @param {AbortSignal|null} [signal]
-   * @returns {Promise<ApiResponse<object>>}
-   * @throws {ClientError}
-   */
-  confirmPasswordResetOtp(body = null, headers = {}, signal = null) {
-    return this.#executeCapability(CAPABILITIES.CONFIRM_PASSWORD_RESET_OTP, {}, body, headers, signal, false);
-  }
-
-  /**
    * Requests an email address change for the currently authenticated user.
    * Requires a valid session (Bearer token in storage).
    *
@@ -521,44 +450,44 @@ class Restinpieces {
     return this.#executeCapability(CAPABILITIES.REQUEST_EMAIL_CHANGE, {}, body, headers, signal, true);
   }
 
-/**
- * Composed authentication flow — orchestrates two capability calls.
- *
- * CONVENTION BREAK: Unlike all other methods in this class, this method
- * does not return a raw ApiResponse. It returns a discriminated union
- * because it covers two distinct outcomes with different data shapes.
- * This is intentional — the return type reflects the flow, not the wire.
- *
- * Flow:
- *   1. AUTH_WITH_PASSWORD — on success, saves auth data and returns null.
- *   2. If the server requires OTP, automatically calls
- *      REQUEST_EMAIL_OTP_VERIFICATION and returns the data needed
- *      to complete the flow via confirmEmailOtpVerification.
- *
- * @param {{ email: string, password: string }|null} [body]
- * @param {Record<string, string>} [headers]
- * @param {AbortSignal|null} [signal]
- * @returns {Promise<null | { email: string, verificationToken: string }>}
- * @throws {ClientError} On credential failure, or when the subsequent OTP request fails.
- */
-async authWithPassword(body = null, headers = {}, signal = null) {
-  try {
-    const response = await this.#executeCapability(CAPABILITIES.AUTH_WITH_PASSWORD, {}, { identity: body.email, password: body.password }, headers, signal, false);
-    if (response?.data?.access_token) {
-      this.store.auth.save(response.data);
+  /**
+   * Composed authentication flow — orchestrates two capability calls.
+   *
+   * CONVENTION BREAK: Unlike all other methods in this class, this method
+   * does not return a raw ApiResponse. It returns a discriminated union
+   * because it covers two distinct outcomes with different data shapes.
+   * This is intentional — the return type reflects the flow, not the wire.
+   *
+   * Flow:
+   *   1. AUTH_WITH_PASSWORD — on success, saves auth data and returns null.
+   *   2. If the server requires OTP, automatically calls
+   *      REQUEST_EMAIL_VERIFICATION_OTP and returns the data needed
+   *      to complete the flow via confirmEmailVerificationOtp.
+   *
+   * @param {{ email: string, password: string }|null} [body]
+   * @param {Record<string, string>} [headers]
+   * @param {AbortSignal|null} [signal]
+   * @returns {Promise<null | { email: string, verificationToken: string }>}
+   * @throws {ClientError} On credential failure, or when the subsequent OTP request fails.
+   */
+  async authWithPassword(body = null, headers = {}, signal = null) {
+    try {
+      const response = await this.#executeCapability(CAPABILITIES.AUTH_WITH_PASSWORD, {}, { identity: body.email, password: body.password }, headers, signal, false);
+      if (response?.data?.access_token) {
+        this.store.auth.save(response.data);
+      }
+      return null;
+    } catch (err) {
+      if (err instanceof ClientError && err.code === "err_required_email_verification_otp") {
+        const otpResponse = await this.#executeCapability(CAPABILITIES.REQUEST_EMAIL_VERIFICATION_OTP, {}, { email: body.email, password: body.password }, headers, signal, false);
+        return {
+          email: body.email,
+          verificationToken: otpResponse.data.verification_token,
+        };
+      }
+      throw err;
     }
-    return null;
-  } catch (err) {
-    if (err instanceof ClientError && err.code === "err_required_email_otp_verification") {
-      const otpResponse = await this.#executeCapability(CAPABILITIES.REQUEST_EMAIL_OTP_VERIFICATION, {}, { email: body.email, password: body.password }, headers, signal, false);
-      return {
-        email: body.email,
-        verificationToken: otpResponse.data.verification_token,
-      };
-    }
-    throw err;
   }
-}
 
   /**
    * Completes an OAuth2 authentication flow using a code/token from the provider.
