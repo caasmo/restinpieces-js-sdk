@@ -65,7 +65,9 @@ const CAPABILITIES = {
   LIST_OAUTH2_PROVIDERS: "list_oauth2_providers",
   REGISTER_WITH_PASSWORD: "register_with_password",
   CONFIRM_EMAIL_CHANGE: "confirm_email_change",
-  REQUEST_PASSWORD_RESET: "request_password_reset",
+  REQUEST_PASSWORD_RESET_OTP: "request_password_reset_otp",
+  VERIFY_PASSWORD_RESET_OTP: "verify_password_reset_otp",
+  CONFIRM_PASSWORD_RESET_OTP: "confirm_password_reset_otp",
   REQUEST_EMAIL_CHANGE: "request_email_change",
   AUTH_WITH_PASSWORD: "auth_with_password",
   AUTH_WITH_OAUTH2: "auth_with_oauth2",
@@ -434,6 +436,45 @@ class Restinpieces {
    */
   requestPasswordReset(body = null, headers = {}, signal = null) {
     return this.#executeCapability(CAPABILITIES.REQUEST_PASSWORD_RESET, {}, body, headers, signal, false);
+  }
+
+  /**
+   * Requests a password reset OTP for the given email address.
+   *
+   * @param {{ email: string }|null} [body]
+   * @param {Record<string, string>} [headers]
+   * @param {AbortSignal|null} [signal]
+   * @returns {Promise<ApiResponse<object>>}
+   * @throws {ClientError}
+   */
+  requestPasswordResetOtp(body = null, headers = {}, signal = null) {
+    return this.#executeCapability(CAPABILITIES.REQUEST_PASSWORD_RESET_OTP, {}, body, headers, signal, false);
+  }
+
+  /**
+   * Verifies the password reset OTP and returns a grant token.
+   *
+   * @param {{ otp: string, verification_token: string }|null} [body]
+   * @param {Record<string, string>} [headers]
+   * @param {AbortSignal|null} [signal]
+   * @returns {Promise<ApiResponse<{ token: string }>>}
+   * @throws {ClientError}
+   */
+  verifyPasswordResetOtp(body = null, headers = {}, signal = null) {
+    return this.#executeCapability(CAPABILITIES.VERIFY_PASSWORD_RESET_OTP, {}, body, headers, signal, false);
+  }
+
+  /**
+   * Confirms the new password using the grant token.
+   *
+   * @param {{ token: string, password: string, password_confirm: string }|null} [body]
+   * @param {Record<string, string>} [headers]
+   * @param {AbortSignal|null} [signal]
+   * @returns {Promise<ApiResponse<object>>}
+   * @throws {ClientError}
+   */
+  confirmPasswordResetOtp(body = null, headers = {}, signal = null) {
+    return this.#executeCapability(CAPABILITIES.CONFIRM_PASSWORD_RESET_OTP, {}, body, headers, signal, false);
   }
 
   /**
