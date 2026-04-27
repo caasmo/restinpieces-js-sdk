@@ -334,19 +334,18 @@ declare class Restinpieces {
     }>>;
     /**
      * Confirms the new password using the grant token.
-     * Saves auth data to storage on success.
      *
      * @param {{ token: string, password: string, password_confirm: string }|null} [body]
      * @param {Record<string, string>} [headers]
      * @param {AbortSignal|null} [signal]
-     * @returns {Promise<ApiResponse<import('./local-store.js').AuthData>>}
+     * @returns {Promise<ApiResponse<object>>}
      * @throws {ClientError}
      */
     confirmPasswordResetOtp(body?: {
         token: string;
         password: string;
         password_confirm: string;
-    } | null, headers?: Record<string, string>, signal?: AbortSignal | null): Promise<ApiResponse<import("./local-store.js").AuthData>>;
+    } | null, headers?: Record<string, string>, signal?: AbortSignal | null): Promise<ApiResponse<object>>;
     /**
      * Requests an email address change for the currently authenticated user.
      * Requires a valid session (Bearer token in storage).

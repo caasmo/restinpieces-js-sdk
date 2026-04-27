@@ -496,22 +496,15 @@ class Restinpieces {
 
   /**
    * Confirms the new password using the grant token.
-   * Saves auth data to storage on success.
    *
    * @param {{ token: string, password: string, password_confirm: string }|null} [body]
    * @param {Record<string, string>} [headers]
    * @param {AbortSignal|null} [signal]
-   * @returns {Promise<ApiResponse<import('./local-store.js').AuthData>>}
+   * @returns {Promise<ApiResponse<object>>}
    * @throws {ClientError}
    */
   confirmPasswordResetOtp(body = null, headers = {}, signal = null) {
-    return this.#executeCapability(CAPABILITIES.CONFIRM_PASSWORD_RESET_OTP, {}, body, headers, signal, false)
-      .then((response) => {
-        if (response?.data?.access_token) {
-          this.store.auth.save(response.data);
-        }
-        return response;
-      });
+    return this.#executeCapability(CAPABILITIES.CONFIRM_PASSWORD_RESET_OTP, {}, body, headers, signal, false);
   }
 
   /**
