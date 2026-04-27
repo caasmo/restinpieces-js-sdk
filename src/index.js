@@ -426,19 +426,6 @@ class Restinpieces {
   }
 
   /**
-   * Sends a password-reset email to the given address.
-   *
-   * @param {{ email: string }|null} [body]
-   * @param {Record<string, string>} [headers]
-   * @param {AbortSignal|null} [signal]
-   * @returns {Promise<ApiResponse<object>>}
-   * @throws {ClientError}
-   */
-  requestPasswordReset(body = null, headers = {}, signal = null) {
-    return this.#executeCapability(CAPABILITIES.REQUEST_PASSWORD_RESET, {}, body, headers, signal, false);
-  }
-
-  /**
    * Requests a password reset OTP for the given email address.
    *
    * @param {{ email: string }|null} [body]
