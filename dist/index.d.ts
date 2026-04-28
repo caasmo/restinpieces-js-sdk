@@ -259,16 +259,19 @@ declare class Restinpieces {
         verification_token: string;
     } | null, headers?: Record<string, string>, signal?: AbortSignal | null): Promise<ApiResponse<import("./local-store.js").AuthData>>;
     /**
-     * Confirms an email address change using a token received at the new address.
+     * Confirms an email address change using an OTP and verification token.
+     * Requires a valid session (Bearer token in storage).
+     * Note: Successful confirmation will invalidate the current session, forcing a re-login.
      *
-     * @param {{ token: string }|null} [body]
+     * @param {{ otp: string, verificationToken: string }|null} [body]
      * @param {Record<string, string>} [headers]
      * @param {AbortSignal|null} [signal]
      * @returns {Promise<ApiResponse<object>>}
      * @throws {ClientError}
      */
-    confirmEmailChange(body?: {
-        token: string;
+    confirmEmailChangeOtp(body?: {
+        otp: string;
+        verificationToken: string;
     } | null, headers?: Record<string, string>, signal?: AbortSignal | null): Promise<ApiResponse<object>>;
     /**
      * Requests a password reset OTP for the given email address.
@@ -313,17 +316,20 @@ declare class Restinpieces {
     } | null, headers?: Record<string, string>, signal?: AbortSignal | null): Promise<ApiResponse<object>>;
     /**
      * Requests an email address change for the currently authenticated user.
-     * Requires a valid session (Bearer token in storage).
+     * Requires a valid session (Bearer token in storage) and the user's current password.
      *
-     * @param {{ newEmail: string }|null} [body]
+     * @param {{ newEmail: string, password: string }|null} [body]
      * @param {Record<string, string>} [headers]
      * @param {AbortSignal|null} [signal]
-     * @returns {Promise<ApiResponse<object>>}
+     * @returns {Promise<ApiResponse<{ verification_token: string }>>}
      * @throws {ClientError}
      */
-    requestEmailChange(body?: {
+    requestEmailChangeOtp(body?: {
         newEmail: string;
-    } | null, headers?: Record<string, string>, signal?: AbortSignal | null): Promise<ApiResponse<object>>;
+        password: string;
+    } | null, headers?: Record<string, string>, signal?: AbortSignal | null): Promise<ApiResponse<{
+        verification_token: string;
+    }>>;
     /**
      * Composed authentication flow — orchestrates two capability calls.
      *

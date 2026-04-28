@@ -64,11 +64,11 @@ const CAPABILITIES = {
   REFRESH_AUTH: "refresh_auth",
   LIST_OAUTH2_PROVIDERS: "list_oauth2_providers",
   REGISTER_WITH_PASSWORD: "register_with_password",
-  CONFIRM_EMAIL_CHANGE: "confirm_email_change",
+  CONFIRM_EMAIL_CHANGE_OTP: "confirm_email_change_otp",
   REQUEST_PASSWORD_RESET_OTP: "request_password_reset_otp",
   VERIFY_PASSWORD_RESET_OTP: "verify_password_reset_otp",
   CONFIRM_PASSWORD_RESET_OTP: "confirm_password_reset_otp",
-  REQUEST_EMAIL_CHANGE: "request_email_change",
+  REQUEST_EMAIL_CHANGE_OTP: "request_email_change_otp",
   AUTH_WITH_PASSWORD: "auth_with_password",
   AUTH_WITH_OAUTH2: "auth_with_oauth2",
   REQUEST_EMAIL_VERIFICATION_OTP: "request_email_verification_otp",
@@ -413,16 +413,23 @@ class Restinpieces {
   }
 
   /**
-   * Confirms an email address change using a token received at the new address.
+   * Confirms an email address change using an OTP and verification token.
+   * Requires a valid session (Bearer token in storage).
+   * Note: Successful confirmation will invalidate the current session, forcing a re-login.
    *
-   * @param {{ token: string }|null} [body]
+   * @param {{ otp: string, verificationToken: string }|null} [body]
    * @param {Record<string, string>} [headers]
    * @param {AbortSignal|null} [signal]
    * @returns {Promise<ApiResponse<object>>}
    * @throws {ClientError}
    */
-  confirmEmailChange(body = null, headers = {}, signal = null) {
-    return this.#executeCapability(CAPABILITIES.CONFIRM_EMAIL_CHANGE, {}, body, headers, signal, false);
+  confirmEmailChangeOtp(body = null, headers = {}, signal = null) {
+    const payload = body ? { otp: body.otp, verification_token: body.verificationToken } : null;
+    return this.#executeCapability(CAPABILITIES.CONFIRM_EMAIL_CHANGE_OTP, {}, payload, headers, signal, true)
+      .then((response) => {
+        this.store.auth.save(null);
+        return response;
+      });
   }
 
   /**
@@ -466,16 +473,17 @@ class Restinpieces {
 
   /**
    * Requests an email address change for the currently authenticated user.
-   * Requires a valid session (Bearer token in storage).
+   * Requires a valid session (Bearer token in storage) and the user's current password.
    *
-   * @param {{ newEmail: string }|null} [body]
+   * @param {{ newEmail: string, password: string }|null} [body]
    * @param {Record<string, string>} [headers]
    * @param {AbortSignal|null} [signal]
-   * @returns {Promise<ApiResponse<object>>}
+   * @returns {Promise<ApiResponse<{ verification_token: string }>>}
    * @throws {ClientError}
    */
-  requestEmailChange(body = null, headers = {}, signal = null) {
-    return this.#executeCapability(CAPABILITIES.REQUEST_EMAIL_CHANGE, {}, body, headers, signal, true);
+  requestEmailChangeOtp(body = null, headers = {}, signal = null) {
+    const payload = body ? { new_email: body.newEmail, password: body.password } : null;
+    return this.#executeCapability(CAPABILITIES.REQUEST_EMAIL_CHANGE_OTP, {}, payload, headers, signal, true);
   }
 
   /**
