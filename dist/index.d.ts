@@ -276,6 +276,10 @@ declare class Restinpieces {
     /**
      * Requests a password reset OTP for the given email address.
      *
+     * NOTE: This method is designed for the "forgot password" flow where the
+     * user is unauthenticated. Authenticated change-password scenarios are
+     * tracked as a future TODO.
+     *
      * @param {{ email: string }|null} [body]
      * @param {Record<string, string>} [headers]
      * @param {AbortSignal|null} [signal]
@@ -302,6 +306,15 @@ declare class Restinpieces {
     }>>;
     /**
      * Confirms the new password using the grant token.
+     *
+     * NOTE: This method does NOT nullify the stored session after success.
+     * The password reset flow is designed for the "forgot password" scenario
+     * where the user is typically unauthenticated. Nullifying a session that
+     * likely doesn't exist would be a no-op at best and misleading at worst.
+     *
+     * Legitimate logged-in reset scenarios (authenticated change-password /
+     * settings / security flows) are tracked as a future TODO and will need
+     * their own dedicated method with proper session invalidation.
      *
      * @param {{ token: string, password: string, password_confirm: string }|null} [body]
      * @param {Record<string, string>} [headers]
@@ -361,7 +374,7 @@ declare class Restinpieces {
      * Completes an OAuth2 authentication flow using a code/token from the provider.
      * Saves auth data to storage on success.
      *
-     * @param {{ code: string, provider: string, [key: string]: any }|null} [body]
+     * @param {{ code: string, provider: string, code_verifier: string, state: string, redirect_uri: string, [key: string]: any }|null} [body]
      * @param {Record<string, string>} [headers]
      * @param {AbortSignal|null} [signal]
      * @returns {Promise<ApiResponse<import('./local-store.js').AuthData>>}
@@ -370,6 +383,9 @@ declare class Restinpieces {
     authWithOauth2(body?: {
         code: string;
         provider: string;
+        code_verifier: string;
+        state: string;
+        redirect_uri: string;
         [key: string]: any;
     } | null, headers?: Record<string, string>, signal?: AbortSignal | null): Promise<ApiResponse<import("./local-store.js").AuthData>>;
     #private;

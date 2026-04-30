@@ -11,6 +11,9 @@
  * OAuth2 provider information saved after the user selects a provider.
  * @property {string} name - Provider identifier (e.g. `"google"`, `"github"`)
  * @property {string} [authUrl] - Authorization URL to redirect the user to
+ * @property {string} [codeVerifier] - PKCE code verifier
+ * @property {string} [state] - CSRF state parameter
+ * @property {string} [redirectURL] - Redirect URI
  */
 /**
  * @typedef {Record<string, string>} EndpointMap
@@ -135,6 +138,18 @@ export type ProviderData = {
      * - Authorization URL to redirect the user to
      */
     authUrl?: string;
+    /**
+     * - PKCE code verifier
+     */
+    codeVerifier?: string;
+    /**
+     * - CSRF state parameter
+     */
+    state?: string;
+    /**
+     * - Redirect URI
+     */
+    redirectURL?: string;
 };
 /**
  * Maps capability keys to `"METHOD /path"` strings as returned by the server.

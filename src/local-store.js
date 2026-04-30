@@ -12,6 +12,9 @@
  * OAuth2 provider information saved after the user selects a provider.
  * @property {string} name - Provider identifier (e.g. `"google"`, `"github"`)
  * @property {string} [authUrl] - Authorization URL to redirect the user to
+ * @property {string} [codeVerifier] - PKCE code verifier
+ * @property {string} [state] - CSRF state parameter
+ * @property {string} [redirectURL] - Redirect URI
  */
 
 /**

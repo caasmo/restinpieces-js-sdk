@@ -542,7 +542,7 @@ class Restinpieces {
    * Completes an OAuth2 authentication flow using a code/token from the provider.
    * Saves auth data to storage on success.
    *
-   * @param {{ code: string, provider: string, [key: string]: any }|null} [body]
+   * @param {{ code: string, provider: string, code_verifier: string, state: string, redirect_uri: string, [key: string]: any }|null} [body]
    * @param {Record<string, string>} [headers]
    * @param {AbortSignal|null} [signal]
    * @returns {Promise<ApiResponse<import('./local-store.js').AuthData>>}
