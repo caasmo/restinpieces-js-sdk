@@ -40,6 +40,62 @@ export type ApiResponse<T> = {
     status?: number;
 };
 /**
+ * The user record nested inside an authentication response.
+ * Mirrors the `AuthRecord` struct in `response_auth.go`.
+ */
+export type AuthRecord = {
+    /**
+     * - Opaque user identifier
+     */
+    id: string;
+    /**
+     * - Normalised (lowercase, trimmed) email address
+     */
+    email: string;
+    /**
+     * - Display name
+     */
+    name: string;
+    /**
+     * - `true` once the user has confirmed their email
+     */
+    verified: boolean;
+};
+/**
+ * Wire-format payload returned by a successful authentication call.
+ * Mirrors the `AuthData` struct in `response_auth.go`.
+ */
+export type AuthResponseData = {
+    /**
+     * - Always the string `"Bearer"`
+     */
+    token_type: "Bearer";
+    /**
+     * - Signed JWT session token
+     */
+    access_token: string;
+    /**
+     * - The authenticated user's public profile
+     */
+    record: AuthRecord;
+};
+/**
+ * Returned by {@link Restinpieces#authWithPassword} when the credential check
+ * succeeded but the account has not yet completed email verification.
+ * The caller must present these values to {@link Restinpieces#confirmEmailVerificationOtp}to complete the login flow.
+ */
+export type OtpPending = {
+    /**
+     * - The address that needs to be verified
+     */
+    email: string;
+    /**
+     * - Opaque server-issued token; must be
+     * passed back alongside the OTP submitted by the user
+     */
+    verificationToken: string;
+};
+/**
  * Internal facade over the storage adapter, scoped to a single domain.
  */
 export type StoreHandle = object;
@@ -344,32 +400,52 @@ declare class Restinpieces {
         verification_token: string;
     }>>;
     /**
-     * Composed authentication flow — orchestrates two capability calls.
+     * Composed authentication flow — orchestrates up to two capability calls.
      *
      * CONVENTION BREAK: Unlike all other methods in this class, this method
-     * does not return a raw ApiResponse. It returns a discriminated union
-     * because it covers two distinct outcomes with different data shapes.
+     * does not return a raw {@link ApiResponse}. It returns a discriminated
+     * union because it covers two distinct outcomes with different data shapes.
      * This is intentional — the return type reflects the flow, not the wire.
      *
-     * Flow:
-     *   1. AUTH_WITH_PASSWORD — on success, saves auth data and returns null.
-     *   2. If the server requires OTP, automatically calls
-     *      REQUEST_EMAIL_VERIFICATION_OTP and returns the data needed
-     *      to complete the flow via confirmEmailVerificationOtp.
+     * ## Flow
+     *
+     * **Happy path (verified account):**
+     * 1. Calls `AUTH_WITH_PASSWORD`.
+     * 2. Saves the returned auth data to storage.
+     * 3. Returns {@link AuthResponseData} — callers can detect terminal success
+     *    by checking for the absence of a `verificationToken` field, e.g.:
+     *    `if (result && !result.verificationToken) { redirect(); }`.
+     *
+     * **OTP required path (unverified account):**
+     * 1. Calls `AUTH_WITH_PASSWORD` — server responds with
+     *    `err_required_email_verification_otp`.
+     * 2. Automatically calls `REQUEST_EMAIL_VERIFICATION_OTP`.
+     * 3. Returns {@link OtpPending} so the caller can display an OTP form
+     *    and then call {@link confirmEmailVerificationOtp}.
+     *
+     * ## Discriminating the return value
+     *
+     * ```js
+     * const result = await rip.authWithPassword({ email, password });
+     *
+     * if (result.verificationToken) {
+     *   // OtpPending — show OTP form
+     * } else {
+     *   // AuthResponseData — login complete, redirect
+     * }
+     * ```
      *
      * @param {{ email: string, password: string }|null} [body]
      * @param {Record<string, string>} [headers]
      * @param {AbortSignal|null} [signal]
-     * @returns {Promise<null | { email: string, verificationToken: string }>}
-     * @throws {ClientError} On credential failure, or when the subsequent OTP request fails.
+     * @returns {Promise<AuthResponseData | OtpPending>}
+     * @throws {ClientError} On credential failure, or when the subsequent OTP
+     *   request fails.
      */
     authWithPassword(body?: {
         email: string;
         password: string;
-    } | null, headers?: Record<string, string>, signal?: AbortSignal | null): Promise<null | {
-        email: string;
-        verificationToken: string;
-    }>;
+    } | null, headers?: Record<string, string>, signal?: AbortSignal | null): Promise<AuthResponseData | OtpPending>;
     /**
      * Completes an OAuth2 authentication flow using a code/token from the provider.
      * Saves auth data to storage on success.
